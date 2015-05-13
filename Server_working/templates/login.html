@@ -72,10 +72,17 @@
         			</div>
         			<!-- qui sotto da cambiare in "<button class="btn btn-lg btn-primary btn-block" type="submit">Log In</button>" -->
         			<button class="btn btn-lg btn-primary btn-block" type="submit">Log In</button>
+        			
+        			{% if validation_login == 'PswF' %}
+        				<div class="alert alert-danger" role="alert">Invalid password for the user</div>
+        			{% endif %}
+        			
+        			{% if validation_login == 'UsrF' %}
+        				<div class="alert alert-danger" role="alert">The user does not exist <a href"{{ url_for('registration') }}">register here</a> or try again</div>
+        			{% endif %}
+        			
       			</form>
-      			{% if validation_login == 'False' %}
-        		<p class="bg-danger">Invalid Credentials</p>
-        		{% endif %}
+      			
     		</div>
     		
     		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>

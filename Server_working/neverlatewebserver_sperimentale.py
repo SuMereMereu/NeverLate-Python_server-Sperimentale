@@ -21,33 +21,29 @@ def index():
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
-	print 'a'
 	if 'user' in session:
 		return redirect ( url_for('default_user'))
-    
-	print 'b'
-	
-	print request.args.get('valid')
-	validation_login=request.args.get('valid')
-	print validation_login
+
 	return render_template('login.html', validation_login=request.args.get('valid'))
 
 @app.route('/loggining', methods=['POST', 'GET'])
 def loggining():
 	global All_user
-	username=request.form['username']
-	password=request.form['password']
+	username=request.form.get('username')
+	password=request.form.get('password')
+	
+	print username
 	
 	check=All_user[username]
 	
-	if username in All_user and check.password == password:
-		print user.username
-		print user.password
-		session['user']=username
-		return render_template('default_user.html')
-	
+	if username in All_user:
+		if check.password == password:
+			session['user']=username
+			return render_template('default_user.html')
+		else:
+			return redirect(url_for('login')+"?valid=PswF")
 	else:
-		return redirect(url_for('login')+"?valid=False")
+		return redirect(url_for('login')+"?valid=UsrF")
 	
 @app.route('/logout')
 def logout():
@@ -69,38 +65,49 @@ def default_user():
 @app.route('/newuser', methods=['POST', 'GET'])
 def newuser():
 	global All_user
-	validation_reg=True
-	email=request.form['email']
-	email_rep=request.form['email_rep']
+	
+	email=request.form.get('email')
+	email_rep=request.form.get('email_rep')
 	
 	if (email != email_rep):
-		validation_reg=False
-		redirect ( url_for('registration'))
+		redirect ( url_for('registration')+"?valid=repMailF")
+		
 	
-	password=request.form['password']
-	password_rep=request.form['password_rep']
+	password=request.form.get('password')
+	password_rep=request.form.get('password_rep')
 	
 	if (password != password_rep):
-		validation_reg=False
-		redirect ( url_for('registration'))
+		redirect ( url_for('registration')+"?valid=repPswF")
 		
-	username=request.form['username']
+		
+	username=request.form.get('username')
 	
-
 	
 	user.username=username
 	user.password=password
 	user.email=email
 	
-	All_user[username] = user
-	session['user']=username
+	if username in All_user:
+		if password == All_user['username'].password:
+			session['user']=username
+			print All_user
+			return redirect(url_for('login'))
+			
+		else:
+			return redirect(url_for('registration')+"?valid=exUsr")
 	
-	return redirect(url_for('login'))
+	else:
+		All_user[username] = user
+		session['user']=username
+		
+		print All_user
+		
+		return redirect(url_for('login'))
 	
 	
 @app.route('/registration', methods=['POST', 'GET'])
 def registration():
-    return render_template('registration.html')
+    return render_template('registration.html', validation_login=request.args.get('valid')) #aggiungere la condizione sulla pagina HTML
     
 @app.route('/architecture')
 def architecture():
