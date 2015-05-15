@@ -34,9 +34,8 @@ def loggining():
 	
 	print username
 	
-	check=All_user[username]
-	
 	if username in All_user:
+		check=All_user[username]
 		if check.password == password:
 			session['user']=username
 			return render_template('default_user.html')
@@ -88,7 +87,7 @@ def newuser():
 	user.email=email
 	
 	if username in All_user:
-		if password == All_user['username'].password:
+		if password == All_user[username].password:
 			session['user']=username
 			print All_user
 			return redirect(url_for('login'))

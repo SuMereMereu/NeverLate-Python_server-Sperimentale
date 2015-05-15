@@ -13,6 +13,10 @@
 		<link href="static/css/signin.css" rel="stylesheet">
 		
 		<link href="static/css/customized-navbar-2.css" rel="stylesheet">
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 	
 	</head>
 	
@@ -78,16 +82,14 @@
         			{% endif %}
         			
         			{% if validation_login == 'UsrF' %}
-        				<div class="alert alert-danger" role="alert">The user does not exist <a href"{{ url_for('registration') }}">register here</a> or try again</div>
+        				<div class="alert alert-danger" role="alert">
+        					<p>The user does not exist. Please register or try again</p>
+        				</div>
         			{% endif %}
         			
       			</form>
       			
     		</div>
-    		
-    		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-	
-			<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     						
     	</body>
 </html>

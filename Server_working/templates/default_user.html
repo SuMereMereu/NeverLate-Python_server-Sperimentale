@@ -14,11 +14,13 @@
 		
 		<link href="static/css/sidebar.css" rel="stylesheet">
 		
-		<script src="static/javascript/sidebar.js"></script>
-	
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	
 		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		
+		<script src="static/javascript/sidebar.js"></script>
+		
+		<script src="static/javascript/default_user_pages.js"></script>
 	
 	</head>
 	
@@ -70,13 +72,13 @@
                     				</a>
                 			</li>
                 			<li>
-                    				<a href="">First Page</a>
+                    				<a href="#" id="firstp_sidebar">First Page</a>
                 			</li>
                 			<li>
-                    				<a href="#">Settings</span></a>
+                    				<a href="#" id="settings_sidebar">Settings</span></a>
                 			</li>
                 			<li>
-                    				<a href="#">Calendar</a>
+                    				<a href="#" id="calendar_sidebar">Calendar</a>
                 			</li>
             			</ul>
         		</div>
@@ -89,10 +91,26 @@
                     				<div class="col-lg-12">
                     					<br>
                     					<br>
+										<ul class="nav nav-tabs visible-xs">
+											<li role="presentation" class="active"><a href="#" id="firstp_nav">First Page</a></li>
+											<li role="presentation"><a href="#" id="settings_nav">Settings</a></li>
+											<li role="presentation"><a href="#" id="calendar_nav">Calendar</a></li>
+										</ul>
                         				<h1 class="page-header">{{ session['user'] }}</h1>
-                        				<div class="alert alert-info" role="alert">
-  								<p>You settings are in default mode you can customize them at <a href="#" class="alert-link">this link</a></p>
-							</div>
+										<div id="firstp">
+											<div class="alert alert-info" role="alert">
+												<p>You settings are in default mode you can customize them at <a href="#" class="alert-link">this link</a></p>
+											</div>
+										</div>
+										
+										<div id="settings" class="hidden">
+											<h2>Settings</h2>
+											
+										</div>
+										
+										<div id="calendar" class="hidden">
+											<h2>Calendar</h2>
+										</div>
                     				</div>
                 			</div>
             			</div>
