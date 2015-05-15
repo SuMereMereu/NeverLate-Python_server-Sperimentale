@@ -90,7 +90,7 @@ def newuser():
 		if password == All_user[username].password:
 			session['user']=username
 			print All_user
-			return redirect(url_for('login'))
+			return redirect(url_for('login')+"valid=extUsr")
 			
 		else:
 			return redirect(url_for('registration')+"?valid=exUsr")
@@ -106,7 +106,7 @@ def newuser():
 	
 @app.route('/registration', methods=['POST', 'GET'])
 def registration():
-    return render_template('registration.html', validation_login=request.args.get('valid')) #aggiungere la condizione sulla pagina HTML
+    return render_template('registration.html', validation_login=request.args.get('valid'))
     
 @app.route('/architecture')
 def architecture():

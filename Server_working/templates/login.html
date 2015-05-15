@@ -87,6 +87,12 @@
         				</div>
         			{% endif %}
         			
+        			{% if validation_login == 'extUsr' %}
+        				<div class="alert alert-warning" role="alert">
+        					<p>The user already exist, please login</p>
+        				</div>
+        			{% endif %}
+        			
       			</form>
       			
     		</div>
