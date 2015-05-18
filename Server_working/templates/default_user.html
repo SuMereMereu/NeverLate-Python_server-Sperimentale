@@ -26,8 +26,6 @@
 		
 		<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
 		
-		<!-- test -->
-		
 		<script src="static/javascript/numeri.js"></script>
 		
 		<link href="static/css/numeri.css" rel="stylesheet">
@@ -108,27 +106,43 @@
 										</ul>
                         				<h1 class="page-header">{{ session['user'] }}</h1>
 										<div id="firstp">
-											<div class="alert alert-info" role="alert">
-												<p>You settings are in default mode you can customize them at <a href="#" class="alert-link">this link</a></p>
-											</div>
+											{% if default == 't' %}
+												<div class="alert alert-info" role="alert">
+													<p>You settings are in default mode you can customize them at <a href="#" class="alert-link">this link</a></p>
+												</div>
+											{% endif %}
+											<br>
+											<a class="btn btn-lg btn-primary btn-block" href="{{ url_for('auth') }}" type="submit">Set</a>
 										</div>
 										
 										<div id="settings" class="hidden">
 											<h2>Settings</h2>
-											<form action="{{ url_for('settings_def') }}" method='POST'> <!--funzione da definire -->
+											<form action="{{ url_for('settings_def') }}" method='POST'> 
 												<div class="row">
 													<div class="col-md-4">
 														<hr class="featurette-divider">
 														<h3>Toggle system status</h3>
-														<input type="checkbox" name="system" checked data-toggle="toggle" data-on="ON" data-off="OFF" data-onstyle="success" data-offstyle="danger">
+														<input type="checkbox" name="system" 
+														{% if system == 'on' %}
+															checked 
+														{% endif %}
+														data-toggle="toggle" data-on="ON" data-off="OFF" data-onstyle="success" data-offstyle="danger">
 							
 														<hr class="featurette-divider">
 														<h3>Vibration</h3>
-														<input type="checkbox" name="vibration" id="vibration" checked data-toggle="toggle">
+														<input type="checkbox" name="vibration" id="vibration"
+														{% if vibration == 'on' %}
+															checked 
+														{% endif %} 
+														data-toggle="toggle">
 														
 														<hr class="featurette-divider">
 														<h3>Sound</h3>
-														<input type="checkbox" name="sound" id="sound" checked data-toggle="toggle">
+														<input type="checkbox" name="sound" id="sound"
+														{% if sound == 'on' %}
+															checked 
+														{% endif %}
+														data-toggle="toggle">
 													</div>	
 													<div class="col-md-8">
 														<div class="row">
@@ -140,7 +154,7 @@
 																		<button class="btn btn-default bootstrap-touchspin-down" id="minus" type="button">-</button>
 																	</span>
 																	<span class="input-group-addon bootstrap-touchspin-prefix" style="display: none;"></span>
-																	<input id="delay" type="text" value="0" name="delay" class="form-control" style="display: block;">
+																	<input id="delay" type="text" value="{{ delay }}" name="delay" class="form-control" style="display: block;">
 																	<span class="input-group-addon bootstrap-touchspin-postfix">min</span>
 																	<span class="input-group-btn">
 																		<button class="btn btn-default bootstrap-touchspin-up" id="more" type="button">+</button>

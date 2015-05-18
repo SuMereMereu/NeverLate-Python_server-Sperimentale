@@ -4,6 +4,11 @@ Created on 04/mag/2015
 @author: nicola, riccardo
 '''
 from flask import Flask , render_template, request, session, url_for, redirect
+import json
+from datetime import datetime, date, timedelta
+import httplib2
+from apiclient import discovery
+from oauth2client import client
 
 app = Flask(__name__)
 app.secret_key='chiavesegreta'
@@ -12,11 +17,11 @@ errorList = []
 
 class Settings:
 	def __init__(self):
-		self.system_status=1
-		self.vibration_status=1
-		self.sound_status=1
+		self.system_status="on"
+		self.vibration_status="on"
+		self.sound_status="on"
 		self.delay=-5
-		self.default_settings=True
+		self.default_settings="t"
 		
 	
 class User:
@@ -47,7 +52,7 @@ def loggining():
 		check=All_user[username]
 		if check.password == password:
 			session['user']=username
-			return render_template('default_user.html')
+			return redirect( url_for('default_user'))
 		else:
 			return redirect(url_for('login')+"?valid=PswF")
 	else:
@@ -72,9 +77,13 @@ def requirements():
     
 @app.route('/user', methods=['POST', 'GET'])
 def default_user():
+	global All_user
 	if 'user' in session:
-		temp=All_user[session['user']]
-		return render_template('default_user.html')
+		return render_template('default_user.html', delay=All_user[session['user']].settings.delay, 
+													system=All_user[session['user']].settings.system_status,
+													vibration=All_user[session['user']].settings.vibration_status, 
+													sound=All_user[session['user']].settings.sound_status,
+													default=All_user[session['user']].settings.default_settings)
 		
 	else:
 		return redirect(url_for('login'))
@@ -118,7 +127,7 @@ def newuser():
 		return redirect(url_for('login')+"?valid=extUsr")
 	
 	else:
-		All_user[username].append(temp)
+		All_user[username]=temp
 		session['user']=username
 		
 		return redirect(url_for('login'))
@@ -137,21 +146,9 @@ def settings_def():
 		temp.settings.vibration_status=vibration
 		temp.settings.sound_status=sound
 		temp.settings.delay=delay
-		temp.settings.default_settings=False
+		temp.settings.default_settings="f"
 		
 		All_user[session['user']]=temp
-		
-		print 'LOCAL'
-		print 'system', system
-		print 'vibration', vibration
-		print 'sound', sound
-		print 'delay', delay
-		
-		print 'ALL_USER'
-		print All_user[session['user']].settings.system_status
-		print All_user[session['user']].settings.vibration_status
-		print All_user[session['user']].settings.sound_status
-		print All_user[session['user']].settings.delay
 		
 		return redirect( url_for('default_user'))	
 	
@@ -164,11 +161,54 @@ def registration():
 @app.route('/architecture')
 def architecture():
 	return render_template('architecture.html')
+	
+@app.route('/Google_auth')
+def auth():
+	if 'credentials' not in session:
+		return redirect(url_for('oauth2callback'))
+		
+	credentials = client.OAuth2Credentials.from_json(session['credentials'])
+	
+	if credentials.access_token_expired:
+		return redirect(flask.url_for('oauth2callback'))
+		
+	else:
+		http_auth = credentials.authorize(httplib2.Http())
+		service = discovery.build('calendar', 'v3', http_auth)
+		
+		
+	calendar = {'summary': 'neverLate','timeZone': 'Europe/Rome'}
+	
+	created_calendar = service.calendars().insert(body=calendar).execute()
+	
+	calendarid= created_calendar['id']
+	
+	return redirect(url_for('default_user'))
+	
+@app.route('/oauth2callback')
+def oauth2callback():
+    flow = client.flow_from_clientsecrets(
+      'client_secrets.json',
+        scope='https://www.googleapis.com/auth/calendar',
+        redirect_uri=url_for('oauth2callback', _external=True), 
+        #include_granted_scopes=True
+        )
+    if 'code' not in request.args:
+        auth_uri = flow.step1_get_authorize_url()
+        return redirect(auth_uri)
+    else:
+        auth_code = request.args.get('code')
+        credentials = flow.step2_exchange(auth_code)
+        session['credentials'] = credentials.to_json()
+        return redirect(flask.url_for('index'))
 
 if __name__ == '__main__':
+    import uuid
     user=User()
     user.username='admin'
     user.password='secretkey'
-    All_user = { user.username : user }
+    
+    All_user[user.username]=user
+    
     app.run(debug=True)
     pass
