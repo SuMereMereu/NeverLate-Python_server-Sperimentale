@@ -84,6 +84,8 @@ def newuser():
 	global All_user
 	global errorList
 	
+	temp=User()
+	
 	email=request.form.get('email')
 	email_rep=request.form.get('email_rep')
 	password=request.form.get('password')
@@ -108,20 +110,20 @@ def newuser():
 	if error == True:
 		return redirect(url_for('registration')+"?error=t")
 	
-	user.username=username
-	user.password=password
-	user.email=email
+	temp.username=username
+	temp.password=password
+	temp.email=email
 	
 	if username in All_user:
 		return redirect(url_for('login')+"?valid=extUsr")
 	
 	else:
-		All_user[username].append(user)
+		All_user[username].append(temp)
 		session['user']=username
 		
 		return redirect(url_for('login'))
 
-@app.route('/settings_definition', methods=['POST', 'GET'])
+@app.route('/settings_definition', methods=['POST', 'GET']) #CANCELLARE LE PRINT
 def settings_def():
 	if 'user' in session:
 		temp=All_user[session['user']]
@@ -137,7 +139,6 @@ def settings_def():
 		temp.settings.delay=delay
 		temp.settings.default_settings=False
 		
-		session['user'].settings=temp.settings
 		All_user[session['user']]=temp
 		
 		print 'LOCAL'
