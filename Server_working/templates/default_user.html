@@ -111,8 +111,6 @@
 													<p>You settings are in default mode you can customize them at <a href="#" class="alert-link">this link</a></p>
 												</div>
 											{% endif %}
-											<br>
-											<a class="btn btn-lg btn-primary btn-block" href="{{ url_for('auth') }}" type="submit">Set</a>
 										</div>
 										
 										<div id="settings" class="hidden">
@@ -173,6 +171,7 @@
 										
 										<div id="calendar" class="hidden">
 											<h2>Calendar</h2>
+											<iframe src="https://www.google.com/calendar/embed?src={{ user_key }}&ctz=Europe/Rome" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
 										</div>
                     				</div>
                 			</div>
