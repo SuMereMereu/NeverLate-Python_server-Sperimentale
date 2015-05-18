@@ -93,6 +93,12 @@
         				</div>
         			{% endif %}
         			
+        			{% if validation_login == 'NoUsr' %}
+        				<div class="alert alert-warning" role="alert">
+        					<p>Insert a username</p>
+        				</div>
+        			{% endif %}
+        			
       			</form>
       			
     		</div>

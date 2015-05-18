@@ -14,6 +14,8 @@
 		
 		<link href="static/css/sidebar.css" rel="stylesheet">
 		
+		<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
+		
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	
 		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
@@ -21,7 +23,15 @@
 		<script src="static/javascript/sidebar.js"></script>
 		
 		<script src="static/javascript/default_user_pages.js"></script>
-	
+		
+		<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
+		
+		<!-- test -->
+		
+		<script src="static/javascript/numeri.js"></script>
+		
+		<link href="static/css/numeri.css" rel="stylesheet">
+		
 	</head>
 	
 	<body>
@@ -105,7 +115,46 @@
 										
 										<div id="settings" class="hidden">
 											<h2>Settings</h2>
-											
+											<form action="" method='POST'> <!--funzione da definire -->
+												<div class="row">
+													<div class="col-md-4">
+														<hr class="featurette-divider">
+														<h3>Toggle system status</h3>
+														<input type="checkbox" name="system" checked data-toggle="toggle" data-on="ON" data-off="OFF" data-onstyle="success" data-offstyle="danger">
+							
+														<hr class="featurette-divider">
+														<h3>Vibration</h3>
+														<input type="checkbox" name="vibration" id="vibration" checked data-toggle="toggle">
+														
+														<hr class="featurette-divider">
+														<h3>Sound</h3>
+														<input type="checkbox" name="sound" id="sound" checked data-toggle="toggle">
+													</div>	
+													<div class="col-md-8">
+														<div class="row">
+															<div class="col-md-3"></div>
+															<div class="col-md-6">
+																<h3>Notification Delay</h3>
+																<div class="input-group bootstrap-touchspin">
+																	<span class="input-group-btn">
+																		<button class="btn btn-default bootstrap-touchspin-down" id="minus" type="button">-</button>
+																	</span>
+																	<span class="input-group-addon bootstrap-touchspin-prefix" style="display: none;"></span>
+																	<input id="delay" type="text" value="0" name="delay" class="form-control" style="display: block;">
+																	<span class="input-group-addon bootstrap-touchspin-postfix">min</span>
+																	<span class="input-group-btn">
+																		<button class="btn btn-default bootstrap-touchspin-up" id="more" type="button">+</button>
+																	</span>
+																</div>
+																<br>
+																<button class="btn btn-lg btn-primary btn-block" type="submit">Set</button>
+															</div>
+														</div>
+														
+														
+													</div>
+												</div>
+											</form>
 										</div>
 										
 										<div id="calendar" class="hidden">

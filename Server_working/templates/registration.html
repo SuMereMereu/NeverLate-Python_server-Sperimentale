@@ -13,6 +13,12 @@
 		<link href="static/css/request.css" rel="stylesheet">
 		
 		<link href="static/css/customized-navbar-2.css" rel="stylesheet">
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		
+		<script src="static/javascript/verderosso.js"></script>
 	
 	</head>
 	
@@ -66,12 +72,12 @@
         			<div class="col-md-6">
         					<div class="form-group" id="EmailID">
         						<h2 class="form-signin-heading">Email</h2>
-							<label for="inputEmail" class="sr-only">Email</label>
+								<label for="inputEmail" class="sr-only">Email</label>
         						<input type="email" name="email" id="inputEmail" class="form-control" placeholder="Enter Email" required>
         						<input type="text" name="email_rep" class="form-control" id="inputEmailRepeated" placeholder="Repeat Email" required>
       						</div>
         					<h2 class="form-signin-heading">Username</h2>
-						<label for="inputUsername" class="sr-only">Username</label>
+							<label for="inputUsername" class="sr-only">Username</label>
         					<input type="text" name="username" id="inputUsername" class="form-control" placeholder="Enter Username" required>
         			</div>
         			
@@ -92,74 +98,20 @@
         			</div>
         		</div>
         		</form>
+        			{% if error == 't' %}
+        			<div class="alert alert-warning" role="alert">
+        				<p>Errors in:<br>
+        				<ul>
+        					{% for error in errors %}
+        						<li>{{ error }}</li> 
+        					{% endfor %}
+        				</ul>
+        				</p>
+        			</div>
+        			{% endif %}
+        	</div>
         		</div>
-        		<div>
-        		
-        		{% if validation_reg == False %}
-        		<h1>Invalid data</h1>
-        		{% endif %}
     		</div>
-    		
-			<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-	
-			<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-			
-    		<script>
-    			$(document).ready(function()
-    			{
-    				$('#inputEmailRepeated').keyup(function()
-    				{
-    					mail = $('#inputEmail').val();
-    					rep_email = $('#inputEmailRepeated').val();
-    					
-    					$('#EmailID').removeClass();
-    					
-    					if(rep_email == "")
-    					{
-    						$('#EmailID').addClass("form-group");
-    					}
-    					
-    					else
-    					{
-    						if(mail == rep_email)
-    						{
-    							$('#EmailID').addClass("form-group has-success");
-    						}
-    						else
-    						{
-    							$('#EmailID').addClass("form-group has-error");
-    						}
-    					}
-    				})
-    				
-    				$('#inputPasswordRepeated').keyup(function()
-    				{
-    					psw = $('#inputPassword').val();
-    					rep_psw = $('#inputPasswordRepeated').val();
-    					
-    					$('#PasswordID').removeClass();
-    					
-    					if(rep_psw == "")
-    					{
-    						$('#PasswordID').addClass("form-group");
-    					}
-    					
-    					else
-    					{
-    						if(psw == rep_psw)
-    						{
-    							$('#PasswordID').addClass("form-group has-success");
-    						}
-    						else
-    						{
-    							$('#PasswordID').addClass("form-group has-error");
-    						}
-    					}
-    				})
-    			})
-    			
-    		</script>
-    		
     		
     	</body>
 </html>
