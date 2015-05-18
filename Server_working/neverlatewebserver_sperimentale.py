@@ -10,11 +10,21 @@ app.secret_key='chiavesegreta'
 All_user = {}
 errorList = []
 
-class utente:
+class Settings:
+	def __init__(self):
+		self.system_status=1
+		self.vibration_status=1
+		self.sound_status=1
+		self.delay=-5
+		self.default_settings=True
+		
+	
+class User:
 	def __init__(self):
 		self.username=""
 		self.password=""
 		self.email=""
+		self.settings=Settings()
 
 @app.route('/')
 def index():
@@ -30,11 +40,8 @@ def login():
 @app.route('/loggining', methods=['POST', 'GET'])
 def loggining():
 	global All_user
-	print All_user
 	username=request.form.get('username')
 	password=request.form.get('password')
-	
-	print username
 	
 	if username in All_user:
 		check=All_user[username]
@@ -63,9 +70,10 @@ def vision():
 def requirements():
     return render_template('requirements.html')
     
-@app.route('/user')
+@app.route('/user', methods=['POST', 'GET'])
 def default_user():
 	if 'user' in session:
+		temp=All_user[session['user']]
 		return render_template('default_user.html')
 		
 	else:
@@ -108,11 +116,43 @@ def newuser():
 		return redirect(url_for('login')+"?valid=extUsr")
 	
 	else:
-		All_user[username] = user
+		All_user[username].append(user)
 		session['user']=username
 		
 		return redirect(url_for('login'))
-	
+
+@app.route('/settings_definition', methods=['POST', 'GET'])
+def settings_def():
+	if 'user' in session:
+		temp=All_user[session['user']]
+		
+		system=request.form.get('system')
+		vibration=request.form.get('vibration')
+		sound=request.form.get('sound')
+		delay=request.form.get('delay')
+		
+		temp.settings.system_status=system
+		temp.settings.vibration_status=vibration
+		temp.settings.sound_status=sound
+		temp.settings.delay=delay
+		temp.settings.default_settings=False
+		
+		session['user'].settings=temp.settings
+		All_user[session['user']]=temp
+		
+		print 'LOCAL'
+		print 'system', system
+		print 'vibration', vibration
+		print 'sound', sound
+		print 'delay', delay
+		
+		print 'ALL_USER'
+		print All_user[session['user']].settings.system_status
+		print All_user[session['user']].settings.vibration_status
+		print All_user[session['user']].settings.sound_status
+		print All_user[session['user']].settings.delay
+		
+		return redirect( url_for('default_user'))	
 	
 @app.route('/registration', methods=['POST', 'GET'])
 def registration():
@@ -125,7 +165,7 @@ def architecture():
 	return render_template('architecture.html')
 
 if __name__ == '__main__':
-    user=utente()
+    user=User()
     user.username='admin'
     user.password='secretkey'
     All_user = { user.username : user }
