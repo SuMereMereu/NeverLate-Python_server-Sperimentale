@@ -23,6 +23,7 @@ class User:
 		self.username=""
 		self.password=""
 		self.email=""
+		self.G_key="0kobc6opfjckts9m15gs4p9adk%40group.calendar.google.com" #settare vuota e mettere form per inserire chiave
 		self.settings=Settings()
 
 @app.route('/')
@@ -80,7 +81,8 @@ def default_user():
 													system=All_user[session['user']].settings.system_status,
 													vibration=All_user[session['user']].settings.vibration_status, 
 													sound=All_user[session['user']].settings.sound_status,
-													default=All_user[session['user']].settings.default_settings)
+													default=All_user[session['user']].settings.default_settings,
+													user_key=All_user[session['user']].G_key)
 		
 	else:
 		return redirect(url_for('login'))
