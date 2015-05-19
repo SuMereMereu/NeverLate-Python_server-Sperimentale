@@ -26,6 +26,8 @@ class User:
 		self.G_key="0kobc6opfjckts9m15gs4p9adk%40group.calendar.google.com" #settare vuota e mettere form per inserire chiave
 		self.settings=Settings()
 
+#RENDERING PAGINE
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -36,57 +38,29 @@ def login():
 		return redirect ( url_for('default_user'))
 
 	return render_template('login.html', validation_login=request.args.get('valid'))
-
-@app.route('/loggining', methods=['POST', 'GET'])
-def loggining():
-	global All_user
-	username=request.form.get('username')
-	password=request.form.get('password')
-	
-	if username in All_user:
-		check=All_user[username]
-		if check.password == password:
-			session['user']=username
-			return redirect( url_for('default_user'))
-		else:
-			return redirect(url_for('login')+"?valid=PswF")
-	else:
-		if username == "":
-			return redirect(url_for('login')+"?valid=NoUsr")
-			
-		else:
-			return redirect(url_for('login')+"?valid=UsrF")
-	
-@app.route('/logout')
-def logout():
-	del session['user']
-	return redirect(url_for('index'))
 	
 @app.route('/vision')
 def vision():
     return render_template('vision.html')
-
+    
 @app.route('/requirements')
 def requirements():
     return render_template('requirements.html')
     
-@app.route('/user', methods=['POST', 'GET'])
-def default_user():
-	if 'user' in session:
-		temp=All_user[session['user']]
-		print 'HERE'
-		print temp
-		print session['user']
-		return render_template('default_user.html', delay=All_user[session['user']].settings.delay, 
-													system=All_user[session['user']].settings.system_status,
-													vibration=All_user[session['user']].settings.vibration_status, 
-													sound=All_user[session['user']].settings.sound_status,
-													default=All_user[session['user']].settings.default_settings,
-													user_key=All_user[session['user']].G_key)
-		
-	else:
-		return redirect(url_for('login'))
+@app.route('/registration', methods=['POST', 'GET'])
+def registration():
 	
+	global errorList
+	return render_template('registration.html', error=request.args.get('error'), errors=errorList)
+	
+@app.route('/architecture')
+def architecture():
+	return render_template('architecture.html')
+	
+  
+
+#ROUTES OPERATIVE
+
 @app.route('/newuser', methods=['POST', 'GET'])
 def newuser():
 	global All_user
@@ -131,6 +105,48 @@ def newuser():
 		
 		return redirect(url_for('login'))
 
+@app.route('/loggining', methods=['POST', 'GET'])
+def loggining():
+	global All_user
+	username=request.form.get('username')
+	password=request.form.get('password')
+	
+	if username in All_user:
+		check=All_user[username]
+		if check.password == password:
+			session['user']=username
+			return redirect( url_for('default_user'))
+		else:
+			return redirect(url_for('login')+"?valid=PswF")
+	else:
+		if username == "":
+			return redirect(url_for('login')+"?valid=NoUsr")
+			
+		else:
+			return redirect(url_for('login')+"?valid=UsrF")
+	
+@app.route('/logout')
+def logout():
+	del session['user']
+	return redirect(url_for('index'))
+	   
+@app.route('/user', methods=['POST', 'GET'])
+def default_user():
+	if 'user' in session:
+		temp=All_user[session['user']]
+		print 'HERE'
+		print temp
+		print session['user']
+		return render_template('default_user.html', delay=All_user[session['user']].settings.delay, 
+													system=All_user[session['user']].settings.system_status,
+													vibration=All_user[session['user']].settings.vibration_status, 
+													sound=All_user[session['user']].settings.sound_status,
+													default=All_user[session['user']].settings.default_settings,
+													user_key=All_user[session['user']].G_key)
+		
+	else:
+		return redirect(url_for('login'))
+
 @app.route('/settings_definition', methods=['POST', 'GET']) #CANCELLARE LE PRINT
 def settings_def():
 	if 'user' in session:
@@ -163,15 +179,9 @@ def settings_def():
 		
 		return redirect( url_for('default_user'))	
 	
-@app.route('/registration', methods=['POST', 'GET'])
-def registration():
-	
-	global errorList
-	return render_template('registration.html', error=request.args.get('error'), errors=errorList)
+
     
-@app.route('/architecture')
-def architecture():
-	return render_template('architecture.html')
+#MAIN
 
 if __name__ == '__main__':
     user=User()
