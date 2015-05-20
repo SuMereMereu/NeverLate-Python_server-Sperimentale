@@ -8,6 +8,7 @@ app = Flask(__name__)
 app.secret_key='chiavesegreta'
 All_user = {}
 errorList = []
+Profs = {}
 
 class Settings:
 	def __init__(self):
@@ -16,7 +17,6 @@ class Settings:
 		self.sound_status="on"
 		self.delay=-5
 		self.default_settings="t"
-		
 	
 class User:
 	def __init__(self):
@@ -25,6 +25,7 @@ class User:
 		self.email=""
 		self.G_key="0kobc6opfjckts9m15gs4p9adk%40group.calendar.google.com" #settare vuota e mettere form per inserire chiave
 		self.settings=Settings()
+		self.subjects=[]
 
 #RENDERING PAGINE
 
@@ -56,6 +57,21 @@ def registration():
 @app.route('/architecture')
 def architecture():
 	return render_template('architecture.html')
+	
+@app.route('/user', methods=['POST', 'GET'])
+def default_user():
+	if 'user' in session:
+		temp=All_user[session['user']]
+		return render_template('default_user.html', delay=All_user[session['user']].settings.delay, 
+													system=All_user[session['user']].settings.system_status,
+													vibration=All_user[session['user']].settings.vibration_status, 
+													sound=All_user[session['user']].settings.sound_status,
+													default=All_user[session['user']].settings.default_settings,
+													user_key=All_user[session['user']].G_key,
+													page=request.args.get('page'))
+		
+	else:
+		return redirect(url_for('login'))
 	
   
 
@@ -125,27 +141,11 @@ def loggining():
 		else:
 			return redirect(url_for('login')+"?valid=UsrF")
 	
-@app.route('/logout')
-def logout():
-	del session['user']
-	return redirect(url_for('index'))
-	   
-@app.route('/user', methods=['POST', 'GET'])
-def default_user():
-	if 'user' in session:
-		temp=All_user[session['user']]
-		print 'HERE'
-		print temp
-		print session['user']
-		return render_template('default_user.html', delay=All_user[session['user']].settings.delay, 
-													system=All_user[session['user']].settings.system_status,
-													vibration=All_user[session['user']].settings.vibration_status, 
-													sound=All_user[session['user']].settings.sound_status,
-													default=All_user[session['user']].settings.default_settings,
-													user_key=All_user[session['user']].G_key)
-		
-	else:
-		return redirect(url_for('login'))
+@app.route('/calendar_step1', methods=['POST', 'GET'])
+def cal_step1():
+	temp_prof=request.form.get('newprof')
+	print temp_prof
+	return redirect(url_for('default_user')+"?page=calendar")
 
 @app.route('/settings_definition', methods=['POST', 'GET']) #CANCELLARE LE PRINT
 def settings_def():
@@ -177,11 +177,12 @@ def settings_def():
 		print All_user[session['user']].settings.sound_status
 		print All_user[session['user']].settings.delay
 		
-		return redirect( url_for('default_user'))	
-	
-
-    
-#MAIN
+		return redirect( url_for('default_user')+"?page=settings")
+		
+@app.route('/logout')
+def logout():
+	del session['user']
+	return redirect(url_for('index'))
 
 if __name__ == '__main__':
     user=User()

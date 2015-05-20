@@ -107,7 +107,7 @@
 											<li role="presentation" ><a href="#" id="calendar_nav">Calendar</a></li>
 										</ul>
                         				<h1 class="page-header">{{ session['user'] }}</h1>
-										<div id="firstp">
+										<div id="firstp"{% if page != "" %} class="hidden" {% endif %}>
 											{% if default == 't' %}
 												<div class="alert alert-info" role="alert">
 													<p>You settings are in default mode you can customize them at settings page</p>
@@ -128,7 +128,7 @@
 												</div>
 												<div class="col-md-8">
 													<h3 class="page-header">Your GoogleCalendar key</h3>
-													<form action="{{  }}" method='POST'>
+													<form method='POST'> <!-- METTERE ACTION -->
 														<input type="text" id="G_key" class="form-control" value="{{ user_key }}" placeholder="GoogleCalendar key">
 														<span id="helpBlock" class="help-block">Change it only if you know how to handle it, if you want to learn more <a href="" id="alert_link">click here</a></span>
 														<button type="submit" id="change" class="btn btn-primary text-center">Change it</button>
@@ -137,7 +137,7 @@
 											</div>
 										</div>
 										
-										<div id="settings" class="hidden">
+										<div id="settings" {% if page != "settings" %} class="hidden" {% endif %}>
 											<h2>Settings</h2>
 											<form action="{{ url_for('settings_def') }}" method='POST'> 
 												<div class="row">
@@ -193,7 +193,7 @@
 											</form>
 										</div>
 										
-										<div id="calendar" class="hidden">
+										<div id="calendar" {% if page != "calendar" %} class="hidden" {% endif %}>
 											<div class="row">
 												<div class="col-md-7">
 													<h2>Calendar</h2>
@@ -201,12 +201,12 @@
 												</div>
 												<div class="col-md-5">
 													<h2>New subject</h2>
-													<form action="{{  }}" method='POST'>
-        												<input type="text" name="newprof" id="newProf" class="form-control" placeholder="Add a new professor">
+													<form action="{{ url_for('cal_step1') }}" method='POST'>
+        												<input type="text" name="newprof" id="newProf" value="{{ temp_prof }}" class="form-control" placeholder="Add a new professor">
         												<hr class="featurette-divider">
         												<button type="submit" id="change" class="btn btn-primary text-center">Add professor</button>
         											</form>
-        											<form action="{{  }}" method='POST'>
+        											<form action="{{ url_for('cal_step1') }}" method='POST'>
         												<h4>Select one or more subjects</h4>
     													<select multiple class="form-control" id="subjects">
     														<option disabled>Enter a professor's name first</option>
