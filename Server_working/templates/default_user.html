@@ -202,14 +202,20 @@
 												<div class="col-md-5">
 													<h2>New subject</h2>
 													<form action="{{ url_for('cal_step1') }}" method='POST'>
-        												<input type="text" name="newprof" id="newProf" value="{{ temp_prof }}" class="form-control" placeholder="Add a new professor">
+        												<input type="text" name="newprof" id="newProf" value="{{ prof }}" class="form-control" placeholder="Add a new professor">
         												<hr class="featurette-divider">
         												<button type="submit" id="change" class="btn btn-primary text-center">Add professor</button>
         											</form>
         											<form action="{{ url_for('cal_step1') }}" method='POST'>
         												<h4>Select one or more subjects</h4>
     													<select multiple class="form-control" id="subjects">
-    														<option disabled>Enter a professor's name first</option>
+    														{% if subj %}
+    															{% for subject in subj %}
+    																<option>{{ subject }}</option>
+    															{% endfor %}
+    														{% else %}
+    															<option disabled>Enter a professor's name first</option>
+															{% endif %}
 														</select>
 														<hr class="featurette-divider">
 														<button type="submit" id="change" class="btn btn-primary text-center">Add subject</button>

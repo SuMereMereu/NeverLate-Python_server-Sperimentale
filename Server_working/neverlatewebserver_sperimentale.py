@@ -3,6 +3,11 @@ Created on 04/mag/2015
 @author: nicola, riccardo
 '''
 from flask import Flask , render_template, request, session, url_for, redirect
+from datetime import datetime, date, timedelta
+from apiclient import discovery
+from oauth2client import client
+import json
+import httplib2
 
 app = Flask(__name__)
 app.secret_key='chiavesegreta'
@@ -23,9 +28,10 @@ class User:
 		self.username=""
 		self.password=""
 		self.email=""
-		self.G_key="0kobc6opfjckts9m15gs4p9adk%40group.calendar.google.com" #settare vuota e mettere form per inserire chiave
+		self.G_key=""
 		self.settings=Settings()
 		self.subjects=[]
+		self.temp=""
 
 #RENDERING PAGINE
 
@@ -59,7 +65,7 @@ def architecture():
 	return render_template('architecture.html')
 	
 @app.route('/user', methods=['POST', 'GET'])
-def default_user():
+def default_user(subj=[]):
 	if 'user' in session:
 		temp=All_user[session['user']]
 		return render_template('default_user.html', delay=All_user[session['user']].settings.delay, 
@@ -68,7 +74,8 @@ def default_user():
 													sound=All_user[session['user']].settings.sound_status,
 													default=All_user[session['user']].settings.default_settings,
 													user_key=All_user[session['user']].G_key,
-													page=request.args.get('page'))
+													page=request.args.get('page'),
+													prof=request.args.get('prof'))
 		
 	else:
 		return redirect(url_for('login'))
@@ -116,10 +123,45 @@ def newuser():
 		return redirect(url_for('login')+"?valid=extUsr")
 	
 	else:
+		if 'credentials' not in session:
+			return redirect(url_for('oauth2callback'))
+		
+		credentials = client.OAuth2Credentials.from_json(session['credentials'])
+		
+		if credentials.access_token_expired:
+			return redirect(url_for('oauth2callback'))
+			
+		else:
+			http_auth = credentials.authorize(httplib2.Http())
+			service = discovery.build('calendar', 'v3', http_auth)
+			
+		calendar = {'summary': 'neverLate','timeZone': 'Europe/Rome'}
+		
+		created_calendar = service.calendars().insert(body=calendar).execute()
+		
+		temp.G_key=created_calendar['id']
+			
 		All_user[username]=temp
 		session['user']=username
 		
 		return redirect(url_for('login'))
+		
+	
+@app.route('/oauth2callback')
+def oauth2callback():
+	flow = client.flow_from_clientsecrets(
+        ' client_secrets.json',
+        scope='https://www.googleapis.com/auth/calendar',
+        redirect_uri=url_for('oauth2callback', _external=True)
+	
+	if 'code' not in request.args:
+    		auth_uri=flow.step1_get_authorize_url()
+     		return redirect(auth_uri)
+	else:
+        	auth_code = request.args.get('code')
+         	credentials = flow.step2_exchange(auth_code)
+          	session['credentials'] = credentials.to_json()
+           	return redirect(url_for('index'))
 
 @app.route('/loggining', methods=['POST', 'GET'])
 def loggining():
@@ -144,10 +186,9 @@ def loggining():
 @app.route('/calendar_step1', methods=['POST', 'GET'])
 def cal_step1():
 	temp_prof=request.form.get('newprof')
-	print temp_prof
-	return redirect(url_for('default_user')+"?page=calendar")
+	return redirect(url_for('default_user')+"?page=calendar&prof="+temp_prof)
 
-@app.route('/settings_definition', methods=['POST', 'GET']) #CANCELLARE LE PRINT
+@app.route('/settings_definition', methods=['POST', 'GET'])
 def settings_def():
 	if 'user' in session:
 		temp=All_user[session['user']]
@@ -165,29 +206,20 @@ def settings_def():
 		
 		All_user[session['user']]=temp
 		
-		print 'LOCAL'
-		print 'system', system
-		print 'vibration', vibration
-		print 'sound', sound
-		print 'delay', delay
-		
-		print 'ALL_USER'
-		print All_user[session['user']].settings.system_status
-		print All_user[session['user']].settings.vibration_status
-		print All_user[session['user']].settings.sound_status
-		print All_user[session['user']].settings.delay
-		
 		return redirect( url_for('default_user')+"?page=settings")
 		
 @app.route('/logout')
 def logout():
+	del All_user[session['user']].temp
 	del session['user']
 	return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    user=User()
-    user.username='admin'
+	user=User()
+	user.username='admin'
     user.password='secretkey'
     All_user[user.username]=user
-    app.run(debug=True)
+    materie = ["AmI", "Inf"] 
+    Profs['corno']= materie
+    app.run(debug=True, host='0.0.0.0')
     pass
