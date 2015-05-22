@@ -12,7 +12,6 @@ import httplib2
 app = Flask(__name__)
 app.secret_key='chiavesegreta'
 All_user = {}
-errorList = []
 Profs = {}
 
 class Settings:
@@ -31,7 +30,8 @@ class User:
 		self.G_key=""
 		self.settings=Settings()
 		self.subjects=[]
-		self.temp=""
+		self.prof=""
+		self.subjects
 
 #RENDERING PAGINE
 
@@ -56,8 +56,8 @@ def requirements():
     
 @app.route('/registration', methods=['POST', 'GET'])
 def registration():
-	
-	global errorList
+	errorList=session['ghost']
+	del session['ghost']
 	return render_template('registration.html', error=request.args.get('error'), errors=errorList)
 	
 @app.route('/architecture')
@@ -74,8 +74,8 @@ def default_user(subj=[]):
 													sound=All_user[session['user']].settings.sound_status,
 													default=All_user[session['user']].settings.default_settings,
 													user_key=All_user[session['user']].G_key,
-													page=request.args.get('page'),
-													prof=request.args.get('prof'))
+													prof=All_user[session['user']].prof,
+													page=request.args.get('page'))
 		
 	else:
 		return redirect(url_for('login'))
@@ -87,7 +87,8 @@ def default_user(subj=[]):
 @app.route('/newuser', methods=['POST', 'GET'])
 def newuser():
 	global All_user
-	global errorList
+	
+	errorList=[]
 	
 	temp=User()
 	
@@ -113,6 +114,7 @@ def newuser():
 		errorList.append('Username field')
 	
 	if error == True:
+		session['ghost']=errorList
 		return redirect(url_for('registration')+"?error=t")
 	
 	temp.username=username
@@ -184,8 +186,8 @@ def loggining():
 	
 @app.route('/calendar_step1', methods=['POST', 'GET'])
 def cal_step1():
-	temp_prof=request.form.get('newprof')
-	return redirect(url_for('default_user')+"?page=calendar&prof="+temp_prof)
+	All_user[session['user']].prof=request.form.get('newprof')
+	return redirect(url_for('default_user')+"?page=calendar")
 
 @app.route('/settings_definition', methods=['POST', 'GET'])
 def settings_def():
