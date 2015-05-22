@@ -36,7 +36,7 @@ class User:
 class User_ghost:
 	def __init__(self):
 		self.username=""
-		self.erroList=[]
+		self.errorList=[]
 
 #RENDERING PAGINE
 
