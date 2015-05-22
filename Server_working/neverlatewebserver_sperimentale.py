@@ -31,7 +31,12 @@ class User:
 		self.settings=Settings()
 		self.subjects=[]
 		self.prof=""
-		self.subjects
+		self.temp_subj=[]
+		
+class User_ghost:
+	def __init__(self):
+		self.username=""
+		self.erroList=[]
 
 #RENDERING PAGINE
 
@@ -41,10 +46,10 @@ def index():
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
-	if 'user' in session:
+	if 'user' in session and session['user'].username != 'ghost':
 		return redirect ( url_for('default_user'))
-
-	return render_template('login.html', validation_login=request.args.get('valid'))
+	else:
+		return render_template('login.html', validation_login=request.args.get('valid'))
 	
 @app.route('/vision')
 def vision():
@@ -56,16 +61,17 @@ def requirements():
     
 @app.route('/registration', methods=['POST', 'GET'])
 def registration():
-	errorList=session['ghost']
-	del session['ghost']
-	return render_template('registration.html', error=request.args.get('error'), errors=errorList)
+	ghost=User_ghost()
+	ghost.username='ghost'
+	session['user']=ghost
+	return render_template('registration.html', error=request.args.get('error'), errors=ghost.errorList)
 	
 @app.route('/architecture')
 def architecture():
 	return render_template('architecture.html')
 	
 @app.route('/user', methods=['POST', 'GET'])
-def default_user(subj=[]):
+def default_user():
 	if 'user' in session:
 		temp=All_user[session['user']]
 		return render_template('default_user.html', delay=All_user[session['user']].settings.delay, 
@@ -114,8 +120,11 @@ def newuser():
 		errorList.append('Username field')
 	
 	if error == True:
-		session['ghost']=errorList
+		session['user'].errorList=errorList
 		return redirect(url_for('registration')+"?error=t")
+	
+	if 'user' in session:
+		del session['user']
 	
 	temp.username=username
 	temp.password=password
@@ -216,8 +225,8 @@ def logout():
 
 if __name__ == '__main__':
 	user=User()
-	user.username='admin'
-	user.password='s'
+	user.username='Riccardo'
+	user.password='Gavoi91'
 	All_user[user.username]=user
 	app.run(debug=True, host='0.0.0.0')
 	pass
