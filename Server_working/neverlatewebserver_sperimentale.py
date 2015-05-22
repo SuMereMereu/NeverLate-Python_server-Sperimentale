@@ -149,10 +149,9 @@ def newuser():
 	
 @app.route('/oauth2callback')
 def oauth2callback():
-	flow = client.flow_from_clientsecrets(
-        ' client_secrets.json',
-        scope='https://www.googleapis.com/auth/calendar',
-        redirect_uri=url_for('oauth2callback', _external=True)
+	flow = client.flow_from_clientsecrets('client_secrets.json',
+        								  scope='https://www.googleapis.com/auth/calendar',
+        								  redirect_uri=url_for('oauth2callback', _external=True))
 	
 	if 'code' not in request.args:
     		auth_uri=flow.step1_get_authorize_url()
@@ -217,9 +216,7 @@ def logout():
 if __name__ == '__main__':
 	user=User()
 	user.username='admin'
-    user.password='secretkey'
-    All_user[user.username]=user
-    materie = ["AmI", "Inf"] 
-    Profs['corno']= materie
-    app.run(debug=True, host='0.0.0.0')
-    pass
+	user.password='s'
+	All_user[user.username]=user
+	app.run(debug=True, host='0.0.0.0')
+	pass
