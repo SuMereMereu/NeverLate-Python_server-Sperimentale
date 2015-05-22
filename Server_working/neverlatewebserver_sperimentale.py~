@@ -41,7 +41,7 @@ def index():
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
-	if 'user' in session and session['user'].username != 'ghost':
+	if 'user' in session:
 		return redirect ( url_for('default_user'))
 	else:
 		return render_template('login.html', validation_login=request.args.get('valid'))
@@ -56,6 +56,7 @@ def requirements():
     
 @app.route('/registration', methods=['POST', 'GET'])
 def registration():
+	session['user']='ghost'
 	return render_template('registration.html', error=request.args.get('error'),
 												mail=request.args.get('mail'),
 												psw=request.args.get('psw'),
@@ -67,8 +68,8 @@ def architecture():
 	
 @app.route('/user', methods=['POST', 'GET'])
 def default_user():
+	global All_user
 	if 'user' in session:
-		temp=All_user[session['user']]
 		return render_template('default_user.html', delay=All_user[session['user']].settings.delay, 
 													system=All_user[session['user']].settings.system_status,
 													vibration=All_user[session['user']].settings.vibration_status, 
@@ -76,7 +77,7 @@ def default_user():
 													default=All_user[session['user']].settings.default_settings,
 													user_key=All_user[session['user']].G_key,
 													prof=All_user[session['user']].prof,
-													page=request.args.get('page'))
+													page=request.args.get('page'), All_user=All_user)
 		
 	else:
 		return redirect(url_for('login'))
@@ -190,7 +191,25 @@ def loggining():
 	
 @app.route('/calendar_step1', methods=['POST', 'GET'])
 def cal_step1():
-	All_user[session['user']].prof=request.form.get('newprof')
+	if All_user[session['user']].prof == "":
+		All_user[session['user']].prof=request.form.get('newprof')
+	
+	if All_user[session['user']].prof in Profs:
+		All_user[session['user']].temp_subj=Profs[All_user[session['user']].prof]
+		for subject in All_user[session['user']].temp_subj:
+			if subject in All_user[session['user'].subjects:
+				All_user[session['user']].temp_subj.remove(subject)
+	else:
+		All_user[session['user']].temp_subj.append('professor does not exist')
+				
+	return redirect(url_for('default_user')+"?page=calendar")
+
+@app.route('/calendar_step2', methods=['POST', 'GET'])
+def cal_step2():
+	temp=request.form.get('subjects')
+	print 'HERE *************************************************** \n', temp
+	All_user[session['user']].temp_subj=[]
+	All_user[session['user']].prof=""
 	return redirect(url_for('default_user')+"?page=calendar")
 
 @app.route('/settings_definition', methods=['POST', 'GET'])
@@ -222,6 +241,9 @@ if __name__ == '__main__':
 	user=User()
 	user.username='Riccardo'
 	user.password='Gavoi91'
+	user.subjects=['inf']
+	materie=['Ami', 'inf']
+	Profs['corno']=materie
 	All_user[user.username]=user
 	app.run(debug=True, host='0.0.0.0')
 	pass
