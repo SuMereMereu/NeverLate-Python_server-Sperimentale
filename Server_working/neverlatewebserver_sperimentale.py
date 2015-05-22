@@ -211,7 +211,6 @@ def settings_def():
 		
 @app.route('/logout')
 def logout():
-	del All_user[session['user']].temp
 	del session['user']
 	return redirect(url_for('index'))
 
