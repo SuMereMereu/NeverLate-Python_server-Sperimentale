@@ -213,12 +213,15 @@
     															{% for subject in All_user[session['user']].temp_subj %}
     																<option>{{ subject }}</option>
     															{% endfor %}
+    															
+    														{% elif All_user[session['user']].prof != '' or select == 'empty' %}
+    															<option disabled>No results, maybe you have all the possible options already added</option>
     														{% else %}
     															<option disabled>Search something first</option>
 															{% endif %}
 														</select>
 														<hr class="featurette-divider">
-														<button type="submit" id="change" class="btn btn-primary btn-lg text-center">Add</button>
+														<button type="submit" id="change" class="btn btn-primary btn-lg text-center" {% if not All_user[session['user']].temp_subj %} disabled {% endif %}>Add</button>
 													</form>
 												</div>
 											</div>

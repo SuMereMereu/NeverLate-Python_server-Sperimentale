@@ -204,7 +204,7 @@
 													<form action="{{ url_for('cal_step1') }}" method='POST'>
         												<input type="text" name="newprof" id="newProf" value="{{ All_user[session['user']].prof }}" class="form-control" placeholder="Search...">
         												<hr class="featurette-divider">
-        												<button type="submit" id="change" class="btn btn-primary text-center">Search</button>
+        												<button type="submit" id="change" class="btn btn-primary btn-lg text-center">Search</button>
         											</form>
         											<form action="{{ url_for('cal_step2') }}" method='POST'>
         												<h4>Select one result</h4>
@@ -213,12 +213,15 @@
     															{% for subject in All_user[session['user']].temp_subj %}
     																<option>{{ subject }}</option>
     															{% endfor %}
+    															
+    														{% elif All_user[session['user']].prof != '' or select == 'empty' %}
+    															<option disabled>No results, maybe you have all the possible options already added</option>
     														{% else %}
     															<option disabled>Search something first</option>
 															{% endif %}
 														</select>
 														<hr class="featurette-divider">
-														<button type="submit" id="change" class="btn btn-primary btn-lg text-center">	Add   </button>
+														<button type="submit" id="change" class="btn btn-primary btn-lg text-center" {% if !All_user[session['user']].temp_subj %} disabled {% endif %}>Add</button>
 													</form>
 												</div>
 											</div>

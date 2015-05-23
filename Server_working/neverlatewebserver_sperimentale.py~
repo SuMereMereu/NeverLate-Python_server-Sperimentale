@@ -77,7 +77,9 @@ def default_user():
 													default=All_user[session['user']].settings.default_settings,
 													user_key=All_user[session['user']].G_key,
 													prof=All_user[session['user']].prof,
-													page=request.args.get('page'), All_user=All_user)
+													page=request.args.get('page'),
+													select=request.args.get('select')
+													All_user=All_user)
 		
 	else:
 		return redirect(url_for('login'))
@@ -196,18 +198,25 @@ def cal_step1():
 	
 	if All_user[session['user']].prof in Profs:
 		All_user[session['user']].temp_subj=Profs[All_user[session['user']].prof]
-		for subject in All_user[session['user']].temp_subj:
-			if subject in All_user[session['user'].subjects:
+		for subject in All_user[session['user']].subjects:
+			if subject in All_user[session['user']].temp_subj:
 				All_user[session['user']].temp_subj.remove(subject)
-	else:
-		All_user[session['user']].temp_subj.append('professor does not exist')
 				
-	return redirect(url_for('default_user')+"?page=calendar")
+		if not All_user[session['user']].temp_subj:
+			All_user[session['user']].prof=""
+			return redirect(url_for('default_user')+"?page=calendar&select=empty")
+		
+		else:
+			return redirect(url_for('default_user')+"?page=calendar")
+			
+	else:
+		All_user[session['user']].prof=""
+		return redirect(url_for('default_user')+"?page=calendar")
 
 @app.route('/calendar_step2', methods=['POST', 'GET'])
 def cal_step2():
 	temp=request.form.get('subjects')
-	print 'HERE *************************************************** \n', temp
+	All_user[session['user']].subjects.append(temp)
 	All_user[session['user']].temp_subj=[]
 	All_user[session['user']].prof=""
 	return redirect(url_for('default_user')+"?page=calendar")
@@ -241,8 +250,8 @@ if __name__ == '__main__':
 	user=User()
 	user.username='Riccardo'
 	user.password='Gavoi91'
-	user.subjects=['inf']
-	materie=['Ami', 'inf']
+	user.subjects=['inf', 'analisi3', 'chimica', 'gianni']
+	materie=['Ami', 'inf', 'gianni', 'analisi2']
 	Profs['corno']=materie
 	All_user[user.username]=user
 	app.run(debug=True, host='0.0.0.0')
