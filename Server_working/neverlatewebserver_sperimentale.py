@@ -196,9 +196,11 @@ def cal_step1():
 	
 	if All_user[session['user']].prof in Profs:
 		All_user[session['user']].temp_subj=Profs[All_user[session['user']].prof]
-		#for subject in All_user[session['user']].temp_subj:
-			#if subject in All_user[session['user'].subjects:
-				#All_user[session['user']].temp_subj.remove(subject)
+		for subject in All_user[session['user']].temp_subj:
+			try:
+				All_user[session['user']].temp_subj.remove(subject)
+			else:
+				pass
 	else:
 		All_user[session['user']].temp_subj.append('professor does not exist')
 				
