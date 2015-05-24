@@ -155,7 +155,6 @@ def newuser():
 		
 		return redirect(url_for('login'))
 		
-	
 @app.route('/oauth2callback')
 def oauth2callback():
 	flow = client.flow_from_clientsecrets('client_secrets.json',
@@ -191,6 +190,26 @@ def loggining():
 		else:
 			return redirect(url_for('login')+"?valid=UsrF")
 	
+@app.route('/settings_definition', methods=['POST', 'GET'])
+def settings_def():
+	if 'user' in session:
+		temp=All_user[session['user']]
+		
+		system=request.form.get('system')
+		vibration=request.form.get('vibration')
+		sound=request.form.get('sound')
+		delay=request.form.get('delay')
+		
+		temp.settings.system_status=system
+		temp.settings.vibration_status=vibration
+		temp.settings.sound_status=sound
+		temp.settings.delay=delay
+		temp.settings.default_settings="f"
+		
+		All_user[session['user']]=temp
+		
+		return redirect( url_for('default_user')+"?page=settings")
+	
 @app.route('/calendar_step1', methods=['POST', 'GET'])
 def cal_step1():
 
@@ -224,26 +243,6 @@ def cal_step2():
 	All_user[session['user']].temp_subj=[]
 	All_user[session['user']].prof=""
 	return redirect(url_for('default_user')+"?page=calendar")
-
-@app.route('/settings_definition', methods=['POST', 'GET'])
-def settings_def():
-	if 'user' in session:
-		temp=All_user[session['user']]
-		
-		system=request.form.get('system')
-		vibration=request.form.get('vibration')
-		sound=request.form.get('sound')
-		delay=request.form.get('delay')
-		
-		temp.settings.system_status=system
-		temp.settings.vibration_status=vibration
-		temp.settings.sound_status=sound
-		temp.settings.delay=delay
-		temp.settings.default_settings="f"
-		
-		All_user[session['user']]=temp
-		
-		return redirect( url_for('default_user')+"?page=settings")
 		
 @app.route('/logout')
 def logout():
