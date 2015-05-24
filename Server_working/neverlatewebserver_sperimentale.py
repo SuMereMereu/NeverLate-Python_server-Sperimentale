@@ -42,7 +42,7 @@ def index():
 @app.route('/login', methods=['POST', 'GET'])
 def login():
 	if 'user' in session:
-		return redirect ( url_for('default_user'))
+		return redirect ( url_for('default_user')+"?page=first")
 	else:
 		return render_template('login.html', validation_login=request.args.get('valid'))
 	
@@ -181,7 +181,7 @@ def loggining():
 		check=All_user[username]
 		if check.password == password:
 			session['user']=username
-			return redirect( url_for('default_user'))
+			return redirect( url_for('default_user')+"?page=first")
 		else:
 			return redirect(url_for('login')+"?valid=PswF")
 	else:
@@ -193,8 +193,12 @@ def loggining():
 	
 @app.route('/calendar_step1', methods=['POST', 'GET'])
 def cal_step1():
+
+	All_user[session['user']].prof=request.form.get('newprof')
+	
 	if All_user[session['user']].prof == "":
-		All_user[session['user']].prof=request.form.get('newprof')
+		All_user[session['user']].temp_subj=[]
+		return redirect(url_for('default_user')+"?page=calendar")
 	
 	if All_user[session['user']].prof in Profs:
 		All_user[session['user']].temp_subj=Profs[All_user[session['user']].prof]

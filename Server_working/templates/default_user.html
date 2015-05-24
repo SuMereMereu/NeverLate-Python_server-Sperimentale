@@ -107,7 +107,7 @@
 											<li role="presentation" ><a href="#" id="calendar_nav">Calendar</a></li>
 										</ul>
                         				<h1 class="page-header">{{ session['user'] }}</h1>
-										<div id="firstp"{% if page != "" %} class="hidden" {% endif %}>
+										<div id="firstp"{% if page != "first" %} class="hidden" {% endif %}>
 											{% if default == 't' %}
 												<div class="alert alert-info" role="alert">
 													<p>You settings are in default mode you can customize them at settings page</p>
@@ -214,9 +214,9 @@
     																<option>{{ subject }}</option>
     															{% endfor %}
     															
-    														{% elif All_user[session['user']].prof != '' or select == 'empty' %}
+    														{% elif All_user[session['user']].prof != '' and select == 'empty' %}
     															<option disabled>No results, maybe you have all the possible options already added</option>
-    														{% else %}
+    														{% elif All_user[session['user']].prof == '' %}
     															<option disabled>Search something first</option>
 															{% endif %}
 														</select>
