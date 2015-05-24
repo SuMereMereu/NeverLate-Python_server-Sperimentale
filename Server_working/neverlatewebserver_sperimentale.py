@@ -189,6 +189,14 @@ def loggining():
 			
 		else:
 			return redirect(url_for('login')+"?valid=UsrF")
+			
+@app.route('/G_key_mod', methods=['POST', 'GET'])
+def Gkeymod():
+	key=request.form.get('G_key')
+	
+	All_user[session['user']].G_key=key
+	
+	return redirect(url_for('default_user')+"?page=first")
 	
 @app.route('/settings_definition', methods=['POST', 'GET'])
 def settings_def():

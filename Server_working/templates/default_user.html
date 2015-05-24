@@ -128,8 +128,8 @@
 												</div>
 												<div class="col-md-8">
 													<h3 class="page-header">Your GoogleCalendar key</h3>
-													<form method='POST'> <!-- METTERE ACTION -->
-														<input type="text" id="G_key" class="form-control" value="{{ user_key }}" placeholder="GoogleCalendar key">
+													<form method='POST' action="{{ url_for('Gkeymod') }}"> 
+														<input type="text" id="G_key" name="G_key" class="form-control" value="{{ user_key }}" placeholder="GoogleCalendar key">
 														<span id="helpBlock" class="help-block">Change it only if you know how to handle it, if you want to learn more <a href="" id="alert_link">click here</a></span>
 														<button type="submit" id="change" class="btn btn-primary text-center">Change it</button>
 													</form>
