@@ -305,8 +305,7 @@ def cal_step2():
 		if subject.page_string() == temp:
 			All_user[session['user']].subjects.append(subject)
 			exit = False
-	
-	All_user[session['user']].subjects.append(temp)
+			
 	All_user[session['user']].temp_subj=[]
 	All_user[session['user']].prof=""
 	return redirect(url_for('default_user')+"?page=calendar")
