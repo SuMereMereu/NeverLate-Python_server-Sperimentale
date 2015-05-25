@@ -12,7 +12,7 @@ import httplib2
 
 app = Flask(__name__)
 app.secret_key='chiavesegreta'
-urlOrario = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_orario"
+urlScheduleTime = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_orario"
 urlAPIpolito = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_elenco_materie"
 All_user = {}
 
@@ -60,7 +60,10 @@ def format_schedule_info(item_text):
     textformatted=textformatted.replace('</p>',"*")
     textformatted=textformatted.replace('<p style="margin:0">',"*")
     textformatted=textformatted.replace('**',"*")
-    return textformatted.split('*')
+    textformatted.split('*')
+    if len(textformatted) > 4:
+    	textformatted.remove(textformatted[2])
+    
     
 urlAPIpolito = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_elenco_materie"
 
@@ -312,7 +315,22 @@ def cal_step2():
 			All_user[session['user']].subjects.append(subject)
 			exit = False
 	
-	
+	for subject in All_user[session['user']].subjects:
+		if subject.uploaded == False:
+			scheduleParameters = { 'listachiavimaterie': subject.code, 'datarif': str(date.today())}
+   		 	APIrequest = requests.post(urlScheduleTime, json=scheduleParameters)
+    		schedule = APIrequest.json()
+    		APIrequest.close()
+    		
+    		OneWeekSpan= timedelta(7,0,0)+DateFormat(schedule['d'][0]['start'])
+    		
+    		if schedule['d']:
+    			pass
+    			
+    		else:
+    			for item in schedule['d']:
+    				if DateFormat(item['start']) < OneWeekSpan:
+    					
 	
 			
 	All_user[session['user']].temp_subj=[]
