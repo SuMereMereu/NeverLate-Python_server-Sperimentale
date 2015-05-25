@@ -282,7 +282,8 @@ def cal_step1():
 				if subject.code == personal_subj.code:
 					flag = False
 			if flag:
-				All_user[session['user']].temp_subj.append(subject.page_string)
+				print "****************************", subject.page_string()
+				All_user[session['user']].temp_subj.append(subject.page_string())
 			
 		if not All_user[session['user']].temp_subj:
 			return redirect(url_for('default_user')+"?page=calendar&select=empty")
