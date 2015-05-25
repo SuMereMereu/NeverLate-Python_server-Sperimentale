@@ -7,12 +7,16 @@ from datetime import datetime, date, timedelta
 from apiclient import discovery
 from oauth2client import client
 import json
+import requests
 import httplib2
 
 app = Flask(__name__)
 app.secret_key='chiavesegreta'
 All_user = {}
-Profs = {}
+
+
+
+#DEFINIZIONE GLOBALE
 
 class Settings:
 	def __init__(self):
@@ -32,6 +36,32 @@ class User:
 		self.subjects=[]
 		self.prof=""
 		self.temp_subj=[]
+		
+class PolitoRequest:
+	def __init__(self, materia, alfabetica, docente, codice):
+		self.subject=materia
+		self.alphabetic=alfabetica
+		self.prof=docente
+		self.code=codice
+	
+	def page_string(self):
+		return self.subject+", "+self.alphabetic+", "+self.prof
+
+def FromRfc3339ToDate(datarfc):
+    datavect=datarfc.split('T')[0].split('-')
+    data=date(int(datavect[0]),int(datavect[1]),int(datavect[2]))
+    return data
+
+def format_schedule_info(item_text):
+    textformatted=item_text.replace('<p style="margin:0"></p>',"")
+    textformatted=textformatted.replace('</p>',"*")
+    textformatted=textformatted.replace('<p style="margin:0">',"*")
+    textformatted=textformatted.replace('**',"*")
+    return textformatted.split('*')
+    
+urlAPIpolito = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_elenco_materie"
+
+
 
 #RENDERING PAGINE
 
@@ -220,29 +250,47 @@ def settings_def():
 	
 @app.route('/calendar_step1', methods=['POST', 'GET'])
 def cal_step1():
-
+	
+	All_user[session['user']].prof=""
 	All_user[session['user']].prof=request.form.get('newprof')
+	
+	APIrequest = requests.post(urlMaterie,json= { 'txt': All_user[session['user']].prof })
+	
+	received=APIrequest.json()
+	
+	APIrequest.close()
+	
+	temp=[]
+	
+	if received['d']:
+		for element in received['d']:
+			temp_obj=PolitoRequest(element['materia'], element['alfabetica'], element['docente'], element['chiave'])
+			temp.append(temp_obj)
+		
+	#********************************
 	
 	if All_user[session['user']].prof == "":
 		All_user[session['user']].temp_subj=[]
 		return redirect(url_for('default_user')+"?page=calendar")
 	
-	if All_user[session['user']].prof in Profs:
-		All_user[session['user']].temp_subj=Profs[All_user[session['user']].prof]
-		for subject in All_user[session['user']].subjects:
-			if subject in All_user[session['user']].temp_subj:
-				All_user[session['user']].temp_subj.remove(subject)
-				
+	
+	if temp:
+		for subject in temp:
+			flag=True
+			for personal_subj in All_user[session['user']].subjects and flag:
+				if subject.code == personal_subj.code
+					flag = False
+			if flag:
+				All_user[session['user']].temp_subj.append(subject.page_string)
+			
 		if not All_user[session['user']].temp_subj:
-			All_user[session['user']].prof=""
 			return redirect(url_for('default_user')+"?page=calendar&select=empty")
 		
 		else:
 			return redirect(url_for('default_user')+"?page=calendar")
 			
 	else:
-		All_user[session['user']].prof=""
-		return redirect(url_for('default_user')+"?page=calendar")
+		return redirect(url_for('default_user')+"?page=calendar&select=empty")
 
 @app.route('/calendar_step2', methods=['POST', 'GET'])
 def cal_step2():
@@ -261,9 +309,6 @@ if __name__ == '__main__':
 	user=User()
 	user.username='Riccardo'
 	user.password='Gavoi91'
-	user.subjects=['inf', 'analisi3', 'chimica', 'gianni']
-	materie=['Ami', 'inf', 'gianni', 'analisi2']
-	Profs['corno']=materie
 	All_user[user.username]=user
 	app.run(debug=True, host='0.0.0.0')
 	pass
