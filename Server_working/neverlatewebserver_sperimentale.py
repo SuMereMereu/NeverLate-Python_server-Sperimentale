@@ -283,7 +283,6 @@ def cal_step1():
 				if subject.code == personal_subj.code:
 					flag = False
 			if flag:
-				print "****************************", subject.page_string()
 				All_user[session['user']].temp_subj.append(subject.page_string())
 			
 		if not All_user[session['user']].temp_subj:
