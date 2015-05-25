@@ -45,7 +45,7 @@ class PolitoRequest:
 		self.code=codice
 	
 	def page_string(self):
-		return self.subject+", "+self.alphabetic+", "+self.prof+", "+self.code
+		return self.subject+", "+self.alphabetic+", "+self.prof+", quadrimestre n° "+self.code[10]
 
 def FromRfc3339ToDate(datarfc):
     datavect=datarfc.split('T')[0].split('-')
