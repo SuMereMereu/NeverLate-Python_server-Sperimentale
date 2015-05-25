@@ -45,7 +45,7 @@ class PolitoRequest:
 		self.code=codice
 	
 	def page_string(self):
-		return self.subject+", "+self.alphabetic+", "+self.prof
+		return self.subject+", "+self.alphabetic+", "+self.prof+", "self.codice
 
 def FromRfc3339ToDate(datarfc):
     datavect=datarfc.split('T')[0].split('-')
@@ -298,6 +298,14 @@ def cal_step1():
 @app.route('/calendar_step2', methods=['POST', 'GET'])
 def cal_step2():
 	temp=request.form.get('subjects')
+	
+	exit = True
+	
+	for subject in All_user[session['user']].temp_subj and exit:
+		if subject.page_string() == temp:
+			All_user[session['user']].subjects.append(subject)
+			exit = False
+	
 	All_user[session['user']].subjects.append(temp)
 	All_user[session['user']].temp_subj=[]
 	All_user[session['user']].prof=""
