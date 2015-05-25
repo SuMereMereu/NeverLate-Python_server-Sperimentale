@@ -279,7 +279,7 @@ def cal_step1():
 		for subject in temp:
 			flag=True
 			for personal_subj in All_user[session['user']].subjects and flag:
-				if subject.code == personal_subj.code
+				if subject.code == personal_subj.code:
 					flag = False
 			if flag:
 				All_user[session['user']].temp_subj.append(subject.page_string)
