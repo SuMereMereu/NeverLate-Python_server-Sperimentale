@@ -43,11 +43,12 @@ class PolitoRequest:
 		self.alphabetic=alfabetica
 		self.prof=docente
 		self.code=codice
+		self.uploaded=False
 	
 	def page_string(self):
 		return self.subject+", "+self.alphabetic+", "+self.prof+", quadrimestre # "+self.code[9]
 
-def FromRfc3339ToDate(datarfc):
+def DateFormat(datarfc):
     datavect=datarfc.split('T')[0].split('-')
     data=date(int(datavect[0]),int(datavect[1]),int(datavect[2]))
     return data
