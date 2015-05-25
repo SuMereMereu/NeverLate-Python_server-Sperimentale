@@ -12,6 +12,8 @@ import httplib2
 
 app = Flask(__name__)
 app.secret_key='chiavesegreta'
+urlOrario = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_orario"
+urlAPIpolito = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_elenco_materie"
 All_user = {}
 
 
@@ -87,7 +89,11 @@ def requirements():
     
 @app.route('/registration', methods=['POST', 'GET'])
 def registration():
+	if session['user'] != 'ghost':
+		return redirect(url_for('default_user'))
+		
 	session['user']='ghost'
+	
 	return render_template('registration.html', error=request.args.get('error'),
 												mail=request.args.get('mail'),
 												psw=request.args.get('psw'),
@@ -305,6 +311,9 @@ def cal_step2():
 		if subject.page_string() == temp:
 			All_user[session['user']].subjects.append(subject)
 			exit = False
+	
+	
+	
 			
 	All_user[session['user']].temp_subj=[]
 	All_user[session['user']].prof=""
