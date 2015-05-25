@@ -253,6 +253,7 @@ def cal_step1():
 	global urlAPIpolito
 	
 	All_user[session['user']].prof=""
+	All_user[session['user']].temp_subj=[]
 	All_user[session['user']].prof=request.form.get('newprof')
 	
 	APIrequest = requests.post(urlAPIpolito, json= { 'txt': All_user[session['user']].prof })
