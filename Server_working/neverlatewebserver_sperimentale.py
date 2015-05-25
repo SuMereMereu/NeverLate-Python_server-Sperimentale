@@ -250,11 +250,12 @@ def settings_def():
 	
 @app.route('/calendar_step1', methods=['POST', 'GET'])
 def cal_step1():
+	global urlAPIpolito
 	
 	All_user[session['user']].prof=""
 	All_user[session['user']].prof=request.form.get('newprof')
 	
-	APIrequest = requests.post(urlMaterie,json= { 'txt': All_user[session['user']].prof })
+	APIrequest = requests.post(urlAPIpolito, json= { 'txt': All_user[session['user']].prof })
 	
 	received=APIrequest.json()
 	
