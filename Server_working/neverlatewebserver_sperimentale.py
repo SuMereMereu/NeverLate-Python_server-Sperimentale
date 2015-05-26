@@ -310,10 +310,11 @@ def cal_step2():
 	
 	exit = True
 	
-	for subject in All_user[session['user']].temp_subj and exit:
-		if subject.page_string() == temp:
-			All_user[session['user']].subjects.append(subject)
-			exit = False
+	if subject:
+		for subject in All_user[session['user']].temp_subj:
+			if subject.page_string() == temp and exit:
+				All_user[session['user']].subjects.append(subject)
+				exit = False
 	
 	for subject in All_user[session['user']].subjects:
 		if subject.uploaded == False:
