@@ -84,7 +84,6 @@ def format_schedule(item_text):
     	result = PolitoCalendar(textformatted[0],textformatted[1],textformatted[2],textformatted[3])
     elif len(textformatted) == 4:
 		result = PolitoCalendar(textformatted[0],"",textformatted[1],textformatted[2])
-		
 	return result
 
 
