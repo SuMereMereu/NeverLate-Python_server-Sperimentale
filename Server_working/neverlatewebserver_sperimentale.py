@@ -348,9 +348,6 @@ def cal_step2():
     		OneWeekSpan= timedelta(7,0,0)+DateFormat(schedule['d'][0]['start'])
     		
     		if schedule['d']:
-    			pass
-    			
-    		else:
     			for item in schedule['d']:
     				if DateFormat(item['start']) < OneWeekSpan:
     					event=PolitoCalendar()
@@ -359,7 +356,21 @@ def cal_step2():
     					
     					event.start=item['start']
     					event.end=item['end']
-	
+    					
+    					G_cal_request= {"end":{ "dateTime": event.end,"timeZone":"Europe/Rome"},
+    									"start":{"dateTime": event.start,"timeZone":"Europe/Rome"},
+    									"recurrence":["RRULE:FREQ=WEEKLY;UNTIL=20150631T170000Z"],
+                    					"summary": event.subject+' '+event.professor,
+                    					"description": event.comment,
+                    					"location": event.classroom,
+                    					"colorId":"3"}
+                    
+                    	try:				
+                    		created_event=service.events().insert(calendarId=calendarid, body=event).execute()
+                    		subject.uploaded=True
+            
+            else:
+            	pass
 			
 	All_user[session['user']].temp_subj=[]
 	All_user[session['user']].prof=""
