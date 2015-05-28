@@ -121,9 +121,6 @@ def requirements():
     
 @app.route('/registration', methods=['POST', 'GET'])
 def registration():
-	if session['user']:
-		return redirect(url_for('default_user'))
-		
 	session['user']='ghost'
 	
 	return render_template('registration.html', error=request.args.get('error'),
