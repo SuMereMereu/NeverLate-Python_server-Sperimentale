@@ -92,7 +92,7 @@ def format_schedule(item_text):
     
     if len(textformatted) == 5:
     	result = PolitoCalendar(textformatted[0],textformatted[1],textformatted[2],textformatted[3])
-    elif len(textformatted) == 4:
+    else:
 		result = PolitoCalendar(textformatted[0],"",textformatted[1],textformatted[2])
 	return result
 
