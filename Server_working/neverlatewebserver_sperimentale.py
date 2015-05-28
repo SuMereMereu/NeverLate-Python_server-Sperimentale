@@ -84,8 +84,6 @@ def DateFormat(datarfc):
 
 def format_schedule(item_text):
 	
-	result=PolitoCalendar()
-	
     textformatted=item_text.replace('<p style="margin:0"></p>',"")
     textformatted=textformatted.replace('</p>',"*")
     textformatted=textformatted.replace('<p style="margin:0">',"*")
