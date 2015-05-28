@@ -26,41 +26,42 @@ All_user = {}
 
 class Settings:
 	def __init__(self):
-		self.system_status="on"
-		self.vibration_status="on"
-		self.sound_status="on"
-		self.delay=-5
-		self.default_settings="t"
+		self.system_status = "on"
+		self.vibration_status = "on"
+		self.sound_status = "on"
+		self.delay = -5
+		self.default_settings = "t"
 	
 class User:
 	def __init__(self):
-		self.username=""
-		self.password=""
-		self.email=""
-		self.G_key=""
-		self.settings=Settings()
-		self.subjects=[]
-		self.prof=""
-		self.temp_subj=[]
+		self.username = ""
+		self.password = ""
+		self.email = ""
+		self.G_key = ""
+		self.settings = Settings()
+		self.subjects = []
+		self.prof = ""
+		self.temp_subj =[]
 		
 class PolitoRequest:
 	def __init__(self, materia, alfabetica, docente, codice):
-		self.subject=materia
-		self.alphabetic=alfabetica
-		self.prof=docente
-		self.code=codice
-		self.uploaded=False
+		self.subject = materia
+		self.alphabetic = alfabetica
+		self.prof = docente
+		self.code = codice
+		self.uploaded = False
 		
 	def page_string(self):
 		return self.subject+", "+self.alphabetic+", "+self.prof+", quadrimestre # "+self.code[9]
 		
 class PolitoCalendar:
-	def __init__(self):
-		self.week_days=[]
-		self.start=""
-		self.comment="" 
-		self.event_key=""
-		self.classroom=""
+	def __init__(self, subject="", comment="", professor="", classroom=""):
+		self.start = ""
+		self.end = ""
+		self.subject = subject
+		self.comment = comment
+		self.professor = professor
+		self.classroom = classroom
 		
 		
 		
@@ -71,15 +72,20 @@ def DateFormat(datarfc):
     data=date(int(datavect[0]),int(datavect[1]),int(datavect[2]))
     return data
 
-def format_schedule_info(item_text):
+def format_schedule(item_text):
+	
     textformatted=item_text.replace('<p style="margin:0"></p>',"")
     textformatted=textformatted.replace('</p>',"*")
     textformatted=textformatted.replace('<p style="margin:0">',"*")
     textformatted=textformatted.replace('**',"*")
     textformatted.split('*')
-    if len(textformatted) > 4:
-    	textformatted.remove(textformatted[2])
-
+    
+    if len(textformatted) == 5:
+    	result = PolitoCalendar(textformatted[0],textformatted[1],textformatted[2],textformatted[3])
+    elif len(textformatted) == 4:
+		result = PolitoCalendar(textformatted[0],"",textformatted[1],textformatted[2])
+		
+	return result
 
 
 #HTML PAGES RENDERING
@@ -94,7 +100,7 @@ def login():
 		return redirect ( url_for('default_user')+"?page=first")
 	else:
 		return render_template('login.html', validation_login=request.args.get('valid'))
-	
+
 @app.route('/vision')
 def vision():
     return render_template('vision.html')
@@ -347,7 +353,12 @@ def cal_step2():
     		else:
     			for item in schedule['d']:
     				if DateFormat(item['start']) < OneWeekSpan:
+    					event=PolitoCalendar()
     					
+    					event=format_schedule(item['text'])
+    					
+    					event.start=item['start']
+    					event.end=item['end']
 	
 			
 	All_user[session['user']].temp_subj=[]
