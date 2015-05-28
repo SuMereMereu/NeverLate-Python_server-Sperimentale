@@ -43,6 +43,11 @@ class User:
 		self.prof = ""
 		self.temp_subj =[]
 		
+	def User_Output_List(self):
+		list = []
+		list.append(self.username, self.password, self.email, self.G_key, self.settings.system_status, self.settings.vibration_status, self.settings.sound_status, self.settings.delay, self.settings.default_settings)
+		return list
+		
 class PolitoRequest:
 	def __init__(self, materia, alfabetica, docente, codice):
 		self.subject = materia
@@ -50,6 +55,11 @@ class PolitoRequest:
 		self.prof = docente
 		self.code = codice
 		self.uploaded = False
+		
+	def Subj_Output_List(self):				#@FEDERICO, MULTIPLE RETURN
+		list = []
+		list.append(self.code, self.subject, self.alphabetic, self.prof)
+		return list, self.uploaded
 		
 	def page_string(self):
 		return self.subject+", "+self.alphabetic+", "+self.prof+", quadrimestre # "+self.code[9]
@@ -73,6 +83,8 @@ def DateFormat(datarfc):
     return data
 
 def format_schedule(item_text):
+	
+	result=PolitoCalendar()
 	
     textformatted=item_text.replace('<p style="margin:0"></p>',"")
     textformatted=textformatted.replace('</p>',"*")
