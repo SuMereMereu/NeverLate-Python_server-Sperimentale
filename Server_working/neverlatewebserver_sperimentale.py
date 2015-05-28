@@ -283,6 +283,10 @@ def cal_step1():
 	All_user[session['user']].temp_subj=[]				#THIS VARIABLE IN USER OBJECT IS NEEDED TO SHOW A DIFFERENT SUBJECT LIST FOR EACH DIFFERENT USER
 	All_user[session['user']].prof=request.form.get('newprof')
 	
+	if All_user[session['user']].prof == "":
+		All_user[session['user']].temp_subj=[]
+		return redirect(url_for('default_user')+"?page=calendar")
+	
 	APIrequest = requests.post(urlAPIpolito, json= { 'txt': All_user[session['user']].prof })		#COMUNICATION WITH POLITO API
 	
 	received=APIrequest.json()
@@ -291,23 +295,18 @@ def cal_step1():
 	
 	temp=[]						
 	
-	if received['d']:															
+	if received['d']:						#CONDITION CHECKING ELEMENTS ON RESPONSE LIST															
 		for element in received['d']:
-			temp_obj=PolitoRequest(element['materia'], element['alfabetica'], element['docente'], element['chiave'])	
-			temp.append(temp_obj)
+			temp_obj=PolitoRequest(element['materia'], element['alfabetica'], element['docente'], element['chiave'])	#IMPORTING RESPONSE ELEMENTS
+			temp.append(temp_obj)	   			#LOCAL STORAGE OF RESPONSE ELEMENTS		
 		
 	#********************************
 	
-	if All_user[session['user']].prof == "":
-		All_user[session['user']].temp_subj=[]
-		return redirect(url_for('default_user')+"?page=calendar")
-	
-	
-	if temp:
+	if temp:						#CHECK OF LOCAL DATA (IF PRESENT OR NOT)
 		for subject in temp:
 			flag=True
-			for personal_subj in All_user[session['user']].subjects and flag:
-				if subject.code == personal_subj.code:
+			for personal_subj in All_user[session['user']].subjects and flag:			#ONLY THE SUBJECTS NOT IN THE USER'S PERSONAL DATA ARE STORED TEMPORARLY 
+				if subject.code == personal_subj.code:									#IN THE DATABASE
 					flag = False
 			if flag:
 				All_user[session['user']].temp_subj.append(subject.page_string())
@@ -321,20 +320,20 @@ def cal_step1():
 	else:
 		return redirect(url_for('default_user')+"?page=calendar&select=empty")
 
-@app.route('/calendar_step2', methods=['POST', 'GET'])
+@app.route('/calendar_step2', methods=['POST', 'GET'])		#NEW SUBJECT ADDITION
 def cal_step2():
-	temp=request.form.get('subjects')
+	temp=request.form.get('subjects')		
 	
 	exit = True
 	
 	if subject:
 		for subject in All_user[session['user']].temp_subj:
-			if subject.page_string() == temp and exit:
-				All_user[session['user']].subjects.append(subject)
+			if subject.page_string() == temp and exit:					#IF THERE IS A MATCH BETWEEN THE SELECTED ITEM AND ANY ELEMENT IN THE TEMPORARLY SUBJECT LIST  
+				All_user[session['user']].subjects.append(subject)		#STORED IN DATABASE, THE SUBJECT IS ADDED IN THE USER'S OFFICIAL SUBJECT LIST
 				exit = False
 	
-	for subject in All_user[session['user']].subjects:
-		if subject.uploaded == False:
+	for subject in All_user[session['user']].subjects:														#SYNCRONIZATION WITH GOOGLE CALENDAR IS CHECKED FOR 
+		if subject.uploaded == False:																		#EACH ELEMENT OF THE USER'S OFFICIAL SUBJECT LIST
 			scheduleParameters = { 'listachiavimaterie': subject.code, 'datarif': str(date.today())}
    		 	APIrequest = requests.post(urlScheduleTime, json=scheduleParameters)
     		schedule = APIrequest.json()
@@ -355,7 +354,7 @@ def cal_step2():
 	All_user[session['user']].prof=""
 	return redirect(url_for('default_user')+"?page=calendar")
 		
-@app.route('/logout')
+@app.route('/logout')						#LOGOUT FUNCTION
 def logout():
 	del session['user']
 	return redirect(url_for('index'))
