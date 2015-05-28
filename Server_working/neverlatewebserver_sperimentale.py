@@ -10,15 +10,19 @@ import json
 import requests
 import httplib2
 
+
+
+#GLOBAL VARIABLES
+
 app = Flask(__name__)
 app.secret_key='chiavesegreta'
 urlScheduleTime = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_orario"
 urlAPIpolito = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_elenco_materie"
-All_user = {}
+All_user = {} 
 
 
 
-#DEFINIZIONE GLOBALE
+#CLASSES
 
 class Settings:
 	def __init__(self):
@@ -46,10 +50,22 @@ class PolitoRequest:
 		self.prof=docente
 		self.code=codice
 		self.uploaded=False
-	
+		
 	def page_string(self):
 		return self.subject+", "+self.alphabetic+", "+self.prof+", quadrimestre # "+self.code[9]
-
+		
+class PolitoCalendar:
+	def __init__(self):
+		self.week_days=[]
+		self.start=""
+		self.comment="" 
+		self.event_key=""
+		self.classroom=""
+		
+		
+		
+#GLOBAL FUNCTIONS
+		
 def DateFormat(datarfc):
     datavect=datarfc.split('T')[0].split('-')
     data=date(int(datavect[0]),int(datavect[1]),int(datavect[2]))
@@ -63,13 +79,10 @@ def format_schedule_info(item_text):
     textformatted.split('*')
     if len(textformatted) > 4:
     	textformatted.remove(textformatted[2])
-    
-    
-urlAPIpolito = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_elenco_materie"
 
 
 
-#RENDERING PAGINE
+#HTML PAGES RENDERING
 
 @app.route('/')
 def index():
@@ -126,18 +139,21 @@ def default_user():
 	
   
 
-#ROUTES OPERATIVE
+#OPERATIVE URLS
 
-@app.route('/newuser', methods=['POST', 'GET'])
+@app.route('/newuser', methods=['POST', 'GET'])		#CREATION OF A NEW USER
 def newuser():
 	global All_user
-	flag_ghost=False
-	temp=User()
+	flag_ghost=False								#flag_ghost VARIABLE IS NEEDED TO CHECK IF THE USER IS ALREADY LOGGED
+	temp=User()										#LOGGED-IN (IN THIS CASE HE MUST LOGOUT) OR NOT
 
 	if session['user'] == 'ghost':
 		flag_ghost=True
+		
+	else: 
+		return redirect(url_for('login'))
 	
-	email=request.form.get('email')
+	email=request.form.get('email')							#COLLECTING DATA FROM FORM IN REGISTRATION PAGE
 	email_rep=request.form.get('email_rep')
 	password=request.form.get('password')
 	password_rep=request.form.get('password_rep')
@@ -148,7 +164,8 @@ def newuser():
 	psw=""
 	usrname=""
 	
-	if (email == "" or email_rep == "" or email != email_rep) and flag_ghost == True:
+	if (email == "" or email_rep == "" or email != email_rep) and flag_ghost == True:					#THE FOLLOWING 4 IF CONDION CHECK IF 
+																										#THE FORM IS FILLED IN THE RIGHT WAY 
 		error = True
 		mail='mail=f'
 	
@@ -164,17 +181,17 @@ def newuser():
 		return redirect(url_for('registration')+"?error=t&"+mail+"&"+psw+"&"+usrname)
 	
 	
-	temp.username=username
+	temp.username=username				
 	temp.password=password
 	temp.email=email
 	
-	if username in All_user:
+	if username in All_user:										#IF THE USER ALREADY EXISTS THE NEW ONE IS ALERTED
 		return redirect(url_for('login')+"?valid=extUsr")
 	
 	else:
-		if 'credentials' not in session:
-			return redirect(url_for('oauth2callback'))
-		
+		if 'credentials' not in session:												#CHECK FOR THE USER AUTHORIZATION
+			return redirect(url_for('oauth2callback'))									#IF NOT PRESENT USER IS REDIRECTED 
+																						#TO GOOGLE PAGE ASKING FOR PERMISSION	
 		credentials = client.OAuth2Credentials.from_json(session['credentials'])
 		
 		if credentials.access_token_expired:
@@ -184,8 +201,8 @@ def newuser():
 			http_auth = credentials.authorize(httplib2.Http())
 			service = discovery.build('calendar', 'v3', http_auth)
 			
-		calendar = {'summary': 'neverLate','timeZone': 'Europe/Rome'}
-		
+		calendar = {'summary': 'neverLate','timeZone': 'Europe/Rome'}					#NEVERLATE CALENDAR CREATION AND STORAGE 
+																						#OF CALENDAR KEY
 		created_calendar = service.calendars().insert(body=calendar).execute()
 		
 		temp.G_key=created_calendar['id']
@@ -195,7 +212,7 @@ def newuser():
 		
 		return redirect(url_for('login'))
 		
-@app.route('/oauth2callback')
+@app.route('/oauth2callback')		#GOOGLE CALENDAR PAGE ASKING FOR USER AUTHORIZATION, STANDARD FUNCTION
 def oauth2callback():
 	flow = client.flow_from_clientsecrets('client_secrets.json',
         								  scope='https://www.googleapis.com/auth/calendar',
@@ -210,17 +227,17 @@ def oauth2callback():
           	session['credentials'] = credentials.to_json()
            	return redirect(url_for('index'))
 
-@app.route('/loggining', methods=['POST', 'GET'])
+@app.route('/loggining', methods=['POST', 'GET'])	#CREATION A SESSION FROM AN EXISTING USER
 def loggining():
 	global All_user
 	username=request.form.get('username')
 	password=request.form.get('password')
 	
-	if username in All_user:
-		check=All_user[username]
+	if username in All_user:											#CHECK FOR AN EXISTING USER AND
+		check=All_user[username]										#EVENTUALLY IF USER'S PASSWORD IS CORRECT		
 		if check.password == password:
 			session['user']=username
-			return redirect( url_for('default_user')+"?page=first")
+			return redirect( url_for('default_user')+"?page=first")		
 		else:
 			return redirect(url_for('login')+"?valid=PswF")
 	else:
@@ -230,7 +247,7 @@ def loggining():
 		else:
 			return redirect(url_for('login')+"?valid=UsrF")
 			
-@app.route('/G_key_mod', methods=['POST', 'GET'])
+@app.route('/G_key_mod', methods=['POST', 'GET'])	#GOOGLE CALENDAR KEY MODIFICATION
 def Gkeymod():
 	key=request.form.get('G_key')
 	
@@ -238,45 +255,45 @@ def Gkeymod():
 	
 	return redirect(url_for('default_user')+"?page=first")
 	
-@app.route('/settings_definition', methods=['POST', 'GET'])
+@app.route('/settings_definition', methods=['POST', 'GET']) #PERSONAL SETTINGS CUSTOMIZATION
 def settings_def():
 	if 'user' in session:
-		temp=All_user[session['user']]
-		
-		system=request.form.get('system')
+		temp=All_user[session['user']]					#LOCAL COPY OF USER IN SESSION
+													
+		system=request.form.get('system')				#STORAGE OF NEW SETTINGS STATUS
 		vibration=request.form.get('vibration')
 		sound=request.form.get('sound')
 		delay=request.form.get('delay')
 		
-		temp.settings.system_status=system
+		temp.settings.system_status=system				#NEW SETTINGS STORAGE AT METHOD LEVEL
 		temp.settings.vibration_status=vibration
 		temp.settings.sound_status=sound
 		temp.settings.delay=delay
 		temp.settings.default_settings="f"
 		
-		All_user[session['user']]=temp
+		All_user[session['user']]=temp					#NEW SETTINGS STORAGE AT DATABASE LEVEL
 		
 		return redirect( url_for('default_user')+"?page=settings")
 	
-@app.route('/calendar_step1', methods=['POST', 'GET'])
+@app.route('/calendar_step1', methods=['POST', 'GET'])		#NEW SUBJECT SEARCH
 def cal_step1():
 	global urlAPIpolito
 	
-	All_user[session['user']].prof=""
-	All_user[session['user']].temp_subj=[]
+	All_user[session['user']].prof=""					#THIS VARIABLE IS USED AS A KEY SEARCHING NEW SUBJECTS
+	All_user[session['user']].temp_subj=[]				#THIS VARIABLE IN USER OBJECT IS NEEDED TO SHOW A DIFFERENT SUBJECT LIST FOR EACH DIFFERENT USER
 	All_user[session['user']].prof=request.form.get('newprof')
 	
-	APIrequest = requests.post(urlAPIpolito, json= { 'txt': All_user[session['user']].prof })
+	APIrequest = requests.post(urlAPIpolito, json= { 'txt': All_user[session['user']].prof })		#COMUNICATION WITH POLITO API
 	
 	received=APIrequest.json()
 	
 	APIrequest.close()
 	
-	temp=[]
+	temp=[]						
 	
-	if received['d']:
+	if received['d']:															
 		for element in received['d']:
-			temp_obj=PolitoRequest(element['materia'], element['alfabetica'], element['docente'], element['chiave'])
+			temp_obj=PolitoRequest(element['materia'], element['alfabetica'], element['docente'], element['chiave'])	
 			temp.append(temp_obj)
 		
 	#********************************
@@ -342,6 +359,10 @@ def cal_step2():
 def logout():
 	del session['user']
 	return redirect(url_for('index'))
+
+
+
+#MAIN
 
 if __name__ == '__main__':
 	user=User()
