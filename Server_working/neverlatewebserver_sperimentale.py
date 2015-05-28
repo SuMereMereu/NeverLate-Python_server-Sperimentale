@@ -92,9 +92,10 @@ def format_schedule(item_text):
     
     if len(textformatted) == 5:
     	result = PolitoCalendar(textformatted[0],textformatted[1],textformatted[2],textformatted[3])
+    	return result
     else:
 		result = PolitoCalendar(textformatted[0],"",textformatted[1],textformatted[2])
-	return result
+		return result
 
 
 #HTML PAGES RENDERING
@@ -366,20 +367,13 @@ def cal_step2():
     					event.start=item['start']
     					event.end=item['end']
     					
-    					G_cal_request= {"end":{ "dateTime": event.end,"timeZone":"Europe/Rome"},
-    									"start":{"dateTime": event.start,"timeZone":"Europe/Rome"},
-    									"recurrence":["RRULE:FREQ=WEEKLY;UNTIL=20150631T170000Z"],
-                    					"summary": event.subject+' '+event.professor,
-                    					"description": event.comment,
-                    					"location": event.classroom,
-                    					"colorId":"3"}
-                    
-                    	try:				
-                    		created_event=service.events().insert(calendarId=calendarid, body=event).execute()
-                    		subject.uploaded=True
-            
-            else:
-            	pass
+    					G_cal_request= {"end":{ "dateTime": event.end,"timeZone":"Europe/Rome"}, "start":{"dateTime": event.start,"timeZone":"Europe/Rome"}, "recurrence":["RRULE:FREQ=WEEKLY;UNTIL=20150631T170000Z"], "summary": event.subject+' '+event.professor, "description": event.comment, "location": event.classroom, "colorId":"3"}
+    					
+    					created_event = service.events().insert(calendarId=All_user[session['user']].G_key, body=G_cal_request).execute()
+    					subject.uploaded=True
+    					
+    		else:
+    			pass
 			
 	All_user[session['user']].temp_subj=[]
 	All_user[session['user']].prof=""
