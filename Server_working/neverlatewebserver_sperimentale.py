@@ -237,7 +237,7 @@ def oauth2callback():
         	auth_code = request.args.get('code')
          	credentials = flow.step2_exchange(auth_code)
           	session['credentials'] = credentials.to_json()
-           	return redirect(url_for('index'))
+           	return redirect(url_for('newuser'))
 
 @app.route('/loggining', methods=['POST', 'GET'])	#CREATION A SESSION FROM AN EXISTING USER
 def loggining():
@@ -338,13 +338,13 @@ def cal_step2():
 	
 	exit = True
 	
-	if subject:
-		for subject in All_user[session['user']].temp_subj:
+	for subject in All_user[session['user']].temp_subj:
 			if subject.page_string() == temp and exit:					#IF THERE IS A MATCH BETWEEN THE SELECTED ITEM AND ANY ELEMENT IN THE TEMPORARLY SUBJECT LIST  
 				All_user[session['user']].subjects.append(subject)		#STORED IN DATABASE, THE SUBJECT IS ADDED IN THE USER'S OFFICIAL SUBJECT LIST
 				exit = False
 	
 	for subject in All_user[session['user']].subjects:														#SYNCRONIZATION WITH GOOGLE CALENDAR IS CHECKED FOR 
+						
 		if subject.uploaded == False:																		#EACH ELEMENT OF THE USER'S OFFICIAL SUBJECT LIST
 			scheduleParameters = { 'listachiavimaterie': subject.code, 'datarif': str(date.today())}
    		 	APIrequest = requests.post(urlScheduleTime, json=scheduleParameters)
