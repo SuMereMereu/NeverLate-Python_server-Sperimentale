@@ -159,9 +159,8 @@ def newuser():
 	flag_ghost=False								#flag_ghost VARIABLE IS NEEDED TO CHECK IF THE USER IS ALREADY LOGGED
 	temp=User()										#LOGGED-IN (IN THIS CASE HE MUST LOGOUT) OR NOT
 
-	#if session['user'] == 'ghost':
-		#flag_ghost=True
-	flag_ghost=True
+	if session['user'] == 'ghost':
+		flag_ghost=True
 		
 	else: 
 		return redirect(url_for('login'))
