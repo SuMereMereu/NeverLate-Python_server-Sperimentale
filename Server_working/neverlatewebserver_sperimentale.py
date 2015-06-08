@@ -40,7 +40,6 @@ class User:
 		self.G_key = ""
 		self.settings = Settings()
 		self.subjects = []
-		self.prof = ""
 		self.temp_subj =[]
 		
 	def User_Output_List(self):
@@ -121,7 +120,6 @@ def requirements():
     
 @app.route('/registration', methods=['POST', 'GET'])
 def registration():
-	
 	return render_template('registration.html', error=request.args.get('error'),
 												mail=request.args.get('mail'),
 												psw=request.args.get('psw'),
@@ -220,7 +218,6 @@ def newuser():
 		temp.G_key=created_calendar['id']
 			
 		All_user[username]=temp
-		session['user']=username
 		
 		return redirect(url_for('login'))
 		
@@ -271,16 +268,11 @@ def Gkeymod():
 def settings_def():
 	if 'user' in session:
 		temp=All_user[session['user']]					#LOCAL COPY OF USER IN SESSION
-													
-		system=request.form.get('system')				#STORAGE OF NEW SETTINGS STATUS
-		vibration=request.form.get('vibration')
-		sound=request.form.get('sound')
-		delay=request.form.get('delay')
 		
-		temp.settings.system_status=system				#NEW SETTINGS STORAGE AT METHOD LEVEL
-		temp.settings.vibration_status=vibration
-		temp.settings.sound_status=sound
-		temp.settings.delay=delay
+		temp.settings.system_status=request.form.get('system')				#NEW SETTINGS STORAGE AT METHOD LEVEL
+		temp.settings.vibration_status=request.form.get('vibration')
+		temp.settings.sound_status=request.form.get('sound')
+		temp.settings.delay=request.form.get('delay')
 		temp.settings.default_settings="f"
 		
 		All_user[session['user']]=temp					#NEW SETTINGS STORAGE AT DATABASE LEVEL
@@ -310,9 +302,7 @@ def cal_step1():
 	if received['d']:						#CONDITION CHECKING ELEMENTS ON RESPONSE LIST															
 		for element in received['d']:
 			temp_obj=PolitoRequest(element['materia'], element['alfabetica'], element['docente'], element['chiave'])	#IMPORTING RESPONSE ELEMENTS
-			temp.append(temp_obj)	   			#LOCAL STORAGE OF RESPONSE ELEMENTS		
-		
-	#********************************
+			temp.append(temp_obj)	   								#LOCAL STORAGE OF RESPONSE ELEMENTS		
 	
 	if temp:						#CHECK OF LOCAL DATA (IF PRESENT OR NOT)
 		for subject in temp:

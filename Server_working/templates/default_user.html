@@ -202,7 +202,7 @@
 												<div class="col-md-5">
 													<h2>Search</h2>
 													<form action="{{ url_for('cal_step1') }}" method='POST'>
-        												<input type="text" name="newprof" id="newProf" value="{{ All_user[session['user']].prof }}" class="form-control" placeholder="Search...">
+        												<input type="text" name="newprof" id="newProf" value="{{ user.prof }}" class="form-control" placeholder="Search...">
         												<hr class="featurette-divider">
         												<button type="submit" id="change" class="btn btn-primary btn-lg text-center">Search</button>
         											</form>
