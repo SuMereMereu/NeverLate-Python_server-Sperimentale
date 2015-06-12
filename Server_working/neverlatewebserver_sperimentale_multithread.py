@@ -127,14 +127,25 @@ def login():						#REMOVE WHEN DABASE IS ADDED
 @app.route('/vision')
 def vision():
     return render_template('vision.html')
-    
+
 @app.route('/requirements')
 def requirements():
     return render_template('requirements.html')
     
 @app.route('/registration', methods=['POST', 'GET'])
 def registration():
-	
+	'''chiedo le credenziali qua cosi non faccio redirect nella pagina newuser'''
+	if 'credentials' not in session:
+		session['oauthcaller']='registration'												#CHECK FOR THE USER AUTHORIZATION
+		return redirect(url_for('oauth2callback'))									#IF NOT PRESENT USER IS REDIRECTED 
+		
+																					#TO GOOGLE PAGE ASKING FOR PERMISSION
+	credentials = client.OAuth2Credentials.from_json(session['credentials'])
+		
+	if credentials.access_token_expired:
+		'''metto questo parametro in sessione per dire ad oauth dove ritornare'''
+		session['oauthcaller']='registration'
+		return redirect(url_for('oauth2callback'))	
 	return render_template('registration.html', error=request.args.get('error'),
 												mail=request.args.get('mail'),
 												psw=request.args.get('psw'),
@@ -179,18 +190,12 @@ def calendar():
 def newuser():
 	if 'user' in session:
 		return redirect(url_for('login'))
-		
-	if 'credentials' not in session:												#CHECK FOR THE USER AUTHORIZATION
-		return redirect(url_for('oauth2callback'))									#IF NOT PRESENT USER IS REDIRECTED 
-																					#TO GOOGLE PAGE ASKING FOR PERMISSION	
+	
 	credentials = client.OAuth2Credentials.from_json(session['credentials'])
-		
-	if credentials.access_token_expired:
-		return redirect(url_for('oauth2callback'))
-			
-	else:
-		http_auth = credentials.authorize(httplib2.Http())
-		service = discovery.build('calendar', 'v3', http_auth)
+
+	http_auth = credentials.authorize(httplib2.Http())
+	service = discovery.build('calendar', 'v3', http_auth)
+	
 	
 	email=request.form.get('email')							#COLLECTING DATA FROM FORM IN REGISTRATION PAGE
 	email_rep=request.form.get('email_rep')
@@ -251,7 +256,10 @@ def oauth2callback():
         	auth_code = request.args.get('code')
          	credentials = flow.step2_exchange(auth_code)
           	session['credentials'] = credentials.to_json()
-           	return redirect(url_for('newuser'))
+          	'''dico a dove fare le redirect'''
+          	redirectString=session['oauthcaller']
+          	del session['oauthcaller']
+           	return redirect(url_for(redirectString))
 
 @app.route('/loggining', methods=['POST', 'GET'])	#CREATION A SESSION FROM AN EXISTING USER
 def loggining():
@@ -264,11 +272,8 @@ def loggining():
 		if check.password == password:
 			session['user']=username
 			
-			if 'credentials' not in session:											#CHECK FOR THE USER AUTHORIZATION
-				return redirect(url_for('oauth2callback'))								#IF NOT PRESENT USER IS REDIRECTED
-			
-			else:								 
-				return redirect( url_for('default_user'))		
+											 
+			return redirect( url_for('default_user'))		
 		
 		else:
 			return redirect(url_for('login')+"?valid=PswF")
@@ -365,9 +370,16 @@ def cal_step2():
 	global All_user
 	temp=request.form.get('subjects')
 																							#TO GOOGLE PAGE ASKING FOR PERMISSION	
+	
+	
+	if 'credentials' not in session:
+		session['oauthcaller']='cal_step2'																				#CHECK FOR THE USER AUTHORIZATION
+		return redirect(url_for('oauth2callback'))								#IF NOT PRESENT USER IS REDIRECTED
+	
 	credentials = client.OAuth2Credentials.from_json(session['credentials'])
 		
 	if credentials.access_token_expired:
+		session['oauthcaller']='cal_step2'	
 		return redirect(url_for('oauth2callback'))
 			
 	else:
@@ -412,7 +424,9 @@ def cal_step2():
 @app.route('/logout')						#LOGOUT FUNCTION
 def logout():
 	del session['user']
-	
+	'''credo che serva'''
+	if 'credentials' in session:
+		del session['credentials']
 	return redirect(url_for('index'))
 
 
