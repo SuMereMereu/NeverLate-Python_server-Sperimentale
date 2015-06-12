@@ -1,0 +1,174 @@
+<html lan="en">
+	<head>
+    		<title>
+     			NeverLate! - User - Settings
+    		</title>
+	
+		<meta charset="utf-8">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+		
+		<link href="/static/css/customized-navbar-2.css" rel="stylesheet">
+		
+		<link href="/static/css/sidebar.css" rel="stylesheet">
+		
+		<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		
+		<script src="/static/javascript/sidebar.js"></script>
+		
+		<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
+		
+		<script src="/static/javascript/numeri.js"></script>
+		
+		<link href="/static/css/numeri.css" rel="stylesheet">
+		
+		<script src="/static/javascript/G_key.js"></script>
+		
+	</head>
+	
+	<body>
+        	<!-- Fixed navbar -->
+	<nav class="navbar navbar-custom navbar-fixed-top">
+      			<div class="container">
+        			<div class="navbar-header">
+        				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            					<span class="sr-only">Toggle navigation</span>
+            					<span class="icon-bar"></span>
+        					<span class="icon-bar"></span>
+            					<span class="icon-bar"></span>
+          				</button>
+          				<a class="navbar-brand" href="">NeverLate</a>
+        			</div>
+        			<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav">
+	            				<li><a href="{{ url_for('index') }}">Home</a></li>
+						<li><a href="{{ url_for('index') }}#news">News</a></li>
+        	    				<li><a href="{{ url_for('index') }}#contacts">Contacts</a></li>
+            					<li class="dropdown">
+    							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Learn More<span class="caret"></span></a>
+    							<ul class="dropdown-menu" role="menu">
+    								<li><a href="{{ url_for('vision') }}">Our Vision</a></li>
+    								<li role="presentation" class="divider"></li>
+    								<li><a href="{{ url_for('requirements') }}">Requirements</a></li>
+    								<li role="presentation" class="divider"></li>
+    								<li><a href="{{ url_for('architecture') }}">Architecture</a></li>
+    							</ul>
+						</li>
+            				</ul>
+					<ul class="nav navbar-nav navbar-right">
+        					<li><a href="{{ url_for('logout') }}">Log Out</a></li>
+        					<li><a href="#menu-toggle" class="btn btn-primary hidden-xs" id="menu-toggle">Toggle Menu</a></li>
+					</ul>
+        			</div>
+      			</div>
+   		</nav>
+   		
+   		<div id="wrapper">
+
+        		<!-- Sidebar -->
+        		<div id="sidebar-wrapper">
+            			<ul class="sidebar-nav">
+                			<li class="sidebar-brand">
+                    				<a href="#">
+                        			Start Bootstrap
+                    				</a>
+                			</li>
+                			<li>
+                    				<a href="{{ url_for('default_user') }}" id="firstp_sidebar">First Page</a>
+                			</li>
+                			<li>
+                    				<a href="{{ url_for('settings') }}" id="settings_sidebar">Settings</span></a>
+                			</li>
+                			<li>
+                    				<a href="{{ url_for('calendar') }}" id="calendar_sidebar">Calendar</a>
+                			</li>
+            			</ul>
+        		</div>
+        		<!-- /#sidebar-wrapper -->
+
+        		<!-- Page Content -->
+        		<div id="page-content-wrapper">
+            			<div class="container-fluid">
+                			<div class="row">
+                    				<div class="col-lg-12">
+                    					<br>
+                    					<br>
+										<ul class="nav nav-tabs visible-xs">
+											<li role="presentation" ><a href="{{ url_for('default_user') }}" id="firstp_nav" active>First Page</a></li>
+											<li role="presentation" ><a href="{{ url_for('settings') }}" id="settings_nav">Settings</a></li>
+											<li role="presentation" ><a href="{{ url_for('calendar') }}" id="calendar_nav">Calendar</a></li>
+										</ul>
+                        				<h1 class="page-header">{{ session['user'] }}</h1>
+										<div id="settings">
+											<h2>Settings</h2>
+											<form action="{{ url_for('settings_def') }}" method='POST'> 
+												<div class="row">
+													<div class="col-md-4">
+														<hr class="featurette-divider">
+														<h3>Vibration</h3>
+														<input type="checkbox" name="vibration" id="vibration"
+														{% if vib == 'on' %}
+															checked 
+														{% endif %} 
+														data-toggle="toggle">
+														
+														<hr class="featurette-divider">
+														<h3>Sound</h3>
+														<input type="checkbox" name="sound" id="sound"
+														{% if sound == 'on' %}
+															checked 
+														{% endif %}
+														data-toggle="toggle">
+													</div>	
+													<div class="col-md-8">
+														<div class="row">
+															<div class="col-md-3"></div>
+															<div class="col-md-6">
+																<h3>Notification Delay</h3>
+																<div class="input-group bootstrap-touchspin">
+																	<span class="input-group-btn">
+																		<button class="btn btn-default bootstrap-touchspin-down" id="minus" type="button">-</button>
+																	</span>
+																	<span class="input-group-addon bootstrap-touchspin-prefix" style="display: none;"></span>
+																	<input id="delay" type="text" value="{{ delay }}" name="delay" class="form-control" style="display: block;">
+																	<span class="input-group-addon bootstrap-touchspin-postfix">min</span>
+																	<span class="input-group-btn">
+																		<button class="btn btn-default bootstrap-touchspin-up" id="more" type="button">+</button>
+																	</span>
+																</div>
+																<br>
+																<button class="btn btn-lg btn-primary btn-block" type="submit">Set</button>
+															</div>
+														</div>
+														
+														
+													</div>
+												</div>
+											</form>
+										</div>
+                    				</div>
+                			</div>
+            			</div>
+        		</div>
+        		<!-- /#page-content-wrapper -->
+
+    		</div>
+		    <!-- /#wrapper -->
+
+    		
+
+    		<!-- Menu Toggle Script -->
+    		<script>
+    			$("#menu-toggle").click(function(e) {
+        		e.preventDefault();
+        		$("#wrapper").toggleClass("toggled");
+    			});
+    		</script>
+   	</body>
+</html>

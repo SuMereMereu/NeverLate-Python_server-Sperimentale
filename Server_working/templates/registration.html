@@ -1,0 +1,122 @@
+<html lan="en">
+	<head>
+    		<title>
+      			NeverLate! - Registration
+    		</title>
+	
+		<meta charset="utf-8">
+	
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+		
+		<link href="static/css/request.css" rel="stylesheet">
+		
+		<link href="static/css/customized-navbar-2.css" rel="stylesheet">
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		
+		<script src="static/javascript/verderosso.js"></script>
+	
+	</head>
+	
+	<body>
+        
+        	<!-- Fixed navbar -->
+		<nav class="navbar navbar-custom navbar-fixed-top">
+      			<div class="container">
+        			<div class="navbar-header">
+        				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            					<span class="sr-only">Toggle navigation</span>
+            					<span class="icon-bar"></span>
+        					<span class="icon-bar"></span>
+            					<span class="icon-bar"></span>
+          				</button>
+          				<a class="navbar-brand" href="">NeverLate</a>
+        			</div>
+        			<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav">
+	            				<li><a href="{{ url_for('index') }}">Home</a></li>
+						<li><a href="{{ url_for('index') }}#news">News</a></li>
+        	    				<li><a href="{{ url_for('index') }}#contacts">Contacts</a></li>
+            					<li class="dropdown">
+    							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Learn More<span class="caret"></span></a>
+    							<ul class="dropdown-menu" role="menu">
+    								<li><a href="{{ url_for('vision') }}">Our Vision</a></li>
+    								<li role="presentation" class="divider"></li>
+    								<li><a href="{{ url_for('requirements') }}">Requirements</a></li>
+    								<li role="presentation" class="divider"></li>
+    								<li><a href="{{ url_for('architecture') }}">Architecture</a></li>
+    							</ul>
+						</li>
+            				</ul>
+					<ul class="nav navbar-nav navbar-right">
+        					<li><a href="{{ url_for('login') }}">Log In</a></li>
+        					<li><a href="#" class="btn btn-primary btn-xs">Register New Product</a></li>
+					</ul>
+        			</div>
+      			</div>
+   		</nav> 
+		
+		<br>
+		<br>
+		<br>
+        	
+        	<div class="container">
+        		<div class="row">
+        		<div class="col-md-12">
+        		<form class="form-signin" action="{{ url_for('newuser') }}" method='POST'>
+        		<div class="row">
+        			<div class="col-md-6">
+        					<div class="form-group" id="EmailID">
+        						<h2 class="form-signin-heading">Email</h2>
+								<label for="inputEmail" class="sr-only">Email</label>
+        						<input type="email" name="email" id="inputEmail" class="form-control" placeholder="Enter Email" required>
+        						<input type="text" name="email_rep" class="form-control" id="inputEmailRepeated" placeholder="Repeat Email" required>
+      						</div>
+        					<h2 class="form-signin-heading">Username</h2>
+							<label for="inputUsername" class="sr-only">Username</label>
+        					<input type="text" name="username" id="inputUsername" class="form-control" placeholder="Enter Username" required>
+        			</div>
+        			
+        			<div class="col-md-6">
+        					<div class="form-group" id="PasswordID">
+        						<h2 class="form-signin-heading">Password</h2>
+							<label for="inputPassword" class="sr-only">Password</label>
+        						<input type="password" name="password" id="inputPassword" class="form-control" placeholder="Enter Password" required>
+        						<input type="password" name="password_rep" class="form-control" id="inputPasswordRepeated" placeholder="Repeat Password" required>
+      						</div>
+        			</div>
+        		</div>
+        		<div class="row">
+        			<div class="col-md-6">
+        				<br>
+        				<button class="btn btn-lg btn-primary btn-block" type="submit">Submit</button>
+        				
+        			</div>
+        		</div>
+        		</form>
+        			<div class="alert alert-warning {% if error != 't' %} hidden {% endif %}" role="alert">
+        				<p>Errors in:<br>
+        				<ul>
+        					{% if mail == 'f'%}
+        						<li>Email field.</li> 
+        					{% endif %}
+							
+							{% if usrname == 'f'%}
+        						<li>Username field.</li> 
+        					{% endif %}
+        					
+        					{% if psw == 'f'%}
+        						<li>Password field.</li> 
+        					{% endif %}
+        				</ul>
+        				</p>
+        			</div>
+        		</div>
+        		</div>
+    		</div>
+    	</body>
+</html>
