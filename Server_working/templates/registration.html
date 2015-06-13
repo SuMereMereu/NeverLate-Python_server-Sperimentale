@@ -93,7 +93,7 @@
         		<div class="row">
         			<div class="col-md-6">
         				<br>
-        				<button class="btn btn-lg btn-primary btn-block" type="submit">Submit</button>
+        				<button class="btn btn-lg btn-primary btn-block {% if session['user'] %} disabled {% endif %}" type="submit">Submit</button>
         				
         			</div>
         		</div>
@@ -115,6 +115,11 @@
         				</ul>
         				</p>
         			</div>
+        			{% if session['user'] %}
+        			<div class="alert alert-danger" role="alert">
+        				<p>You are logged in as {{ session['user'] }}, if you want to register a new user please log out.
+        			</div>
+        			{% endif %}
         		</div>
         		</div>
     		</div>
