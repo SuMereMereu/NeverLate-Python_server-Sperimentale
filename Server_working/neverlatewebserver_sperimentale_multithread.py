@@ -6,6 +6,7 @@ from flask import Flask , render_template, request, session, url_for, redirect, 
 from datetime import datetime, date, timedelta
 from apiclient import discovery
 from oauth2client import client
+from os import urandom
 import requests
 import httplib2
 import json
@@ -13,7 +14,7 @@ import json
 #GLOBAL VARIABLES
 
 app = Flask(__name__)
-app.secret_key='chiavesegreta'
+app.secret_key=urandom(24)
 urlScheduleTime = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_orario"
 urlAPIpolito = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_elenco_materie"
 All_user = {} 			#REMOVE WHEN DABASE IS ADDED
@@ -444,9 +445,8 @@ if __name__ == '__main__':
 	user=User()
 	user.username='Riccardo'
 	user.password='Gavoi91'
+	user.G_key='9p2jhrvdq00b2o8fp34lmurif4%40group.calendar.google.com'
 	All_user[user.username]=user
 	app.run(debug=True, host='0.0.0.0', threaded=True)
 	pass
-
-	
 	
