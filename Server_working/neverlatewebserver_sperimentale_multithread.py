@@ -20,6 +20,7 @@ app.secret_key=urandom(24)
 urlScheduleTime = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_orario"
 urlAPIpolito = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_elenco_materie"
 All_user = {} 			#REMOVE WHEN DABASE IS ADDED
+All_prof={}
 nmax=2					#MAX ARCS TO UPLOAD CHANGE IT
 diz={} 					#QUEUE FOR UPDATING TIMETRAVELS
 
@@ -47,12 +48,19 @@ class User:
 		self.email = ""
 		self.G_key = ""
 		self.settings = Settings()
-		self.subjects = []
+		self.subjects = []			
 			
 	def User_Output_List(self):
 		list = []
 		list.append(self.username, self.password, self.email, self.G_key, self.settings.system_status, self.settings.vibration_status, self.settings.sound_status, self.settings.delay, self.settings.default_settings)
 		return list
+
+#MODIFICA Class Subject attendies
+class SubjectAttendies:
+		def __init__(self):
+			self.code=""
+			self.alfabetic=""
+			self.Attendies=[]
 		
 class PolitoRequest:
 	def __init__(self, materia, alfabetica, docente, codice):
@@ -387,7 +395,7 @@ def newuser():
 		temp.G_key=created_calendar['id']
 		
 		
-		insertUser(temp.User_Output_List())
+		'''insertUser(temp.User_Output_List())''' #COMMENTATA MOMENTANEAMENTE CHE BLOCCA IL CODICE (CONTIENE SYSTEM STATUS) 
 		All_user[username]=temp				#REMOVE WHEN DABASE IS ADDED
 		
 		return redirect(url_for('login'))
@@ -543,7 +551,32 @@ def cal_step2():
 		if control == temp and exit:										#IF THERE IS A MATCH BETWEEN THE SELECTED ITEM AND ANY ELEMENT IN THE TEMPORARLY SUBJECT LIST
 			dict_to_obj=PolitoRequest(subject['subj'], subject['alpha'], subject['prof'], subject['code'])
 			dict_to_obj.uploaded = False		  
-			All_user[session['user']].subjects.append(dict_to_obj)			#TROVARE SOLUZIONE PER CARICARE OGGETTO, STORED IN DATABASE, THE SUBJECT IS ADDED IN THE USER'S OFFICIAL SUBJECT LIST
+			All_user[session['user']].subjects.append(dict_to_obj) #TROVARE SOLUZIONE PER CARICARE OGGETTO, STORED IN DATABASE, THE SUBJECT IS ADDED IN THE USER'S OFFICIAL SUBJECT LIST
+			#insert the student in the attendies of that subject
+			if subject['prof'] in All_prof: #check 1: Is the prof in the list of prof?
+				if subject['subj'] in All_prof['prof']:#check 2: Is the subject in the list of sublects of the prof?
+					AttendieDontExist=0#check 3:the user is already in the attendie list? 
+					for attendie in All_prof['prof']['subj'].Attendies:
+						if session['user']==attendie:
+							AttendieDontExist=1
+					if AttendieDontExist:
+						All_prof['prof']['subj'].Attendies.append(session['user'])
+				else:
+					NewSubject=SubjectAttendies()
+					NewSubject.code=subject['code']
+					NewSubject.alfabetic=subject['alpha']
+					NewSubject.Attendies.append(session['user'])
+					All_prof['prof'][subject['subj']]=NewSubject
+			else:
+				All_prof[subject['prof']]={}
+				NewSubject=SubjectAttendies()
+				NewSubject.code=subject['code']
+				NewSubject.alfabetic=subject['alpha']
+				NewSubject.Attendies.append(session['user'])
+				All_prof[subject['prof']][subject['subj']]=NewSubject
+					
+			
+
 			exit = False
 	
 	for subject in All_user[session['user']].subjects:														#SYNCRONIZATION WITH GOOGLE CALENDAR IS CHECKED FOR 
