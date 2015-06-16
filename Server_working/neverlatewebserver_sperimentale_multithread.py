@@ -11,6 +11,7 @@ from time import sleep
 import requests
 import httplib2
 import json
+import MySQLdb
 
 #GLOBAL VARIABLES
 
