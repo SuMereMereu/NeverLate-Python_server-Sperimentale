@@ -1,6 +1,6 @@
 '''
 Created on 04/mag/2015
-@author: nicola, riccardo
+@author: nicola, riccardo, federico
 '''
 from flask import Flask , render_template, request, session, url_for, redirect, jsonify
 from datetime import datetime, date, timedelta
