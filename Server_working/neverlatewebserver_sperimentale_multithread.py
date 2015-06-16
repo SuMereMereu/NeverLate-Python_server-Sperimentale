@@ -385,7 +385,9 @@ def newuser():
 																						#OF CALENDAR KEY
 		created_calendar = service.calendars().insert(body=calendar).execute()
 		temp.G_key=created_calendar['id']
-			
+		
+		
+		insertUser(temp.User_Output_List())
 		All_user[username]=temp				#REMOVE WHEN DABASE IS ADDED
 		
 		return redirect(url_for('login'))
@@ -456,7 +458,7 @@ def settings_def():
 		All_user[session['user']].settings.delay=request.form.get('delay')
 		All_user[session['user']].settings.default_settings="f"
 		
-		#STORE IN DATABASE NEW USER SETTINGS
+		insertUser(temp.User_Output_List()) 			#ADDING USER SETTINGS TO DATABASE
 		
 		return redirect(url_for('settings'))
 		
