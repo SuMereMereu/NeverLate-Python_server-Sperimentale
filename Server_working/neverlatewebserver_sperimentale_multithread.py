@@ -7,6 +7,7 @@ from datetime import datetime, date, timedelta
 from apiclient import discovery
 from oauth2client import client
 from os import urandom
+from time import sleep
 import requests
 import httplib2
 import json
@@ -226,6 +227,9 @@ def updateDatabase(lista,Place1,Place2):
 	new=lista[indice]
 	'''faccio la media e update'''
 	new=(float(new)+float(old))/2
+	
+	sleep(10)
+	
 	query="UPDATE GRAPH SET Time='%f' WHERE Place1='%s' AND Place2='%s'"%(new,Place1,Place2)
 	cursor.execute(query)
 	conn.commit()
@@ -240,12 +244,17 @@ def QUERY_RESULT_JSON(tablename):
 	cursor.execute(query)
 	mac=cursor.fetchall()
 	
-	rowarray_list=[]
+	rowarray_list=""
+	lista=[]
+	diz={}
 	
 	for row in mac:
-		rowarray_list.append(row)
+		rowarray_list=" ".join(str(l) for l in row)
+		lista.append(rowarray_list)
+		
+	diz["value"]=json.dumps(lista)
 	
-	return json.dumps(rowarray_list)
+	return diz
 
 
 
@@ -590,7 +599,6 @@ def getquery(key):
 		'''lancio processo di update'''
 		pu=Process(target=updateDatabase,args=(diz[query[0]+query[1]],query[0],query[1],))
 		pu.start()
-		pu.join()
 		'''svuoto la coda'''
 		del diz[query[0]+query[1]][:]
 		
@@ -625,7 +633,6 @@ def getdbupdate():
 def getUserSettingsJson(username):
 	
 	rowarray_list=getUserSettings(username)
-	rowarray_list=json.dumps(rowarray_list)
 	vocabolario={}
 	vocabolario["settings"]=rowarray_list
 	return jsonify(vocabolario)
