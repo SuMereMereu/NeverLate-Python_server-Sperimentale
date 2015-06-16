@@ -18,7 +18,8 @@ app.secret_key=urandom(24)
 urlScheduleTime = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_orario"
 urlAPIpolito = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_elenco_materie"
 All_user = {} 			#REMOVE WHEN DABASE IS ADDED
-
+nmax=2					#MAX ARCS TO UPLOAD CHANGE IT
+diz={} 					#QUEUE FOR UPDATING TIMETRAVELS
 
 
 #CLASSES
@@ -109,6 +110,142 @@ def format_schedule(item_text):
     else:
         result = PolitoCalendar(textformatted[0],"",textformatted[1],textformatted[2])
         return result
+
+
+
+#DATABASE FUNCTIONS
+
+def insertUser(lista):
+	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
+	cursor=conn.cursor()
+	
+	query="INSERT INTO USERS VALUES('%s','%s','%s','%s','%s','%s','%s','%s','%d')"%(lista[0],lista[1],lista[2],lista[3],lista[4],lista[5],lista[6],lista[7],int(lista[8]))
+	cursor.execute(query)
+	conn.commit()
+	conn.close()
+	
+def insertSubject(lista):
+	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
+	cursor=conn.cursor()
+	
+	query='SELECT * FROM SUBJECTS WHERE ApiSubjectCode="%s"'%(lista[0])
+	cursor.execute(query)
+	num=cursor.fetchone()
+	
+	if num==None:
+		query="INSERT INTO SUBJECTS VALUES('%s','%s','%s','%s')"%(lista[0],lista[1],lista[2],lista[3])
+		cursor.execute(query)
+	conn.commit()
+	conn.close()
+	
+def insertAttendance(lista1,lista2,valore): 
+	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
+	cursor=conn.cursor()
+	
+	query="INSERT INTO ATTENDANCE VALUES('%s','%s','%s)"%(lista1[0],lista2[0],valore)
+	cursor.execute(query)
+	conn.commit()
+	conn.close()
+	
+def getUserSettings(username):
+	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
+	cursor=conn.cursor()
+	
+	query="SELECT GoogleCalKey,SystemStatus,VibrationStatus,SoundStatus,DefaultValue,Delay FROM USERS WHERE UserName='%s'"%(username)
+	cursor.execute(query)
+	settings=cursor.fetchall()
+	for line in settings:
+		newline=" ".join(str(l) for l in line)
+		newline=newline.split()
+		
+	conn.close()
+	return newline
+
+def getUsersAttendACourse(courseCode):
+	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
+	cursor=conn.cursor()
+	
+	query="SELECT UserName FROM ATTENDANCE WHERE ApiSubjectCode='%s'"%(courseCode)
+	
+	cursor.execute(query)
+	users=cursor.fetchall()
+	for line in users:
+		newline=" ".join(str(l) for l in line)
+		newline=newline.split()
+		
+	conn.close()
+	
+	return newline
+
+def getIfUploadedToCalendar(username):
+	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
+	cursor=conn.cursor()
+	
+	query="SELECT Uploaded FROM ATTENDANCE WHERE UserName='%s'"%(username)
+	
+	cursor.execute(query)
+	uploaded=cursor.fetchall()
+	for line in uploaded:
+		newline=" ".join(str(l) for l in line)
+		newline=newline.split()
+		
+	conn.close()
+	return newline
+
+def getPass(username):
+	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
+	cursor=conn.cursor()
+	
+	query="SELECT Password FROM USERS WHERE UserName='%s'"%(username)
+	
+	cursor.execute(query)
+	passw=cursor.fetchall()
+	for line in passw:
+		newline=" ".join(str(l) for l in line)
+		newline=newline.split()
+		
+	conn.close()
+	
+	return newline[0]
+
+def updateDatabase(lista,Place1,Place2):
+	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
+	cursor=conn.cursor()
+	'''acquisisco vecchio valore'''
+	query="SELECT Time FROM GRAPH WHERE Place1='%s' AND Place2='%s'"%(Place1,Place2)
+	cursor.execute(query)
+	old=cursor.fetchall()
+	for line in old:
+		newline=" ".join(str(l) for l in line)
+		newline=newline.split()
+	old=newline[0]
+	'''prendo la mediana?'''
+	lista.sort()
+	lung=len(lista)
+	indice=lung/2
+	new=lista[indice]
+	'''faccio la media e update'''
+	new=(float(new)+float(old))/2
+	query="UPDATE GRAPH SET Time='%f' WHERE Place1='%s' AND Place2='%s'"%(new,Place1,Place2)
+	cursor.execute(query)
+	conn.commit()
+	
+	conn.close
+	
+def QUERY_RESULT_JSON(tablename):
+	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
+	cursor=conn.cursor()
+	query="SELECT * FROM %s" %(tablename)
+	
+	cursor.execute(query)
+	mac=cursor.fetchall()
+	
+	rowarray_list=[]
+	
+	for row in mac:
+		rowarray_list.append(row)
+	
+	return json.dumps(rowarray_list)
 
 
 
@@ -439,14 +576,84 @@ def get_pref(username):
 	return jsonify(All_user[username].settings.settings_dict())
 
 
+
+#GRAPH ROUTES
+
+@app.route("/updatedb/<key>") 
+def getquery(key):
+	query=key.replace("-", " ").encode("ascii","ignore")
+
+	query=query.split()
+	'''inserisco nel dizionario'''
+	diz[query[0]+query[1]].append(query[2])
+	if(len(diz[query[0]+query[1]])>nmax):
+		'''lancio processo di update'''
+		pu=Process(target=updateDatabase,args=(diz[query[0]+query[1]],query[0],query[1],))
+		pu.start()
+		pu.join()
+		'''svuoto la coda'''
+		del diz[query[0]+query[1]][:]
+		
+	return 'OK',200
+
+@app.route("/getdb")  
+def getdb():
+	
+	MAC=QUERY_RESULT_JSON("MAC_ADDRESS")
+	PLACES=QUERY_RESULT_JSON("PLACES")
+	GRAPH=QUERY_RESULT_JSON("GRAPH")
+	CHECK=QUERY_RESULT_JSON("CHECKPOINTS")
+	
+	vocabolario={}
+	vocabolario["mac_address"]=MAC
+	vocabolario["places"]=PLACES
+	vocabolario["graph"]=GRAPH
+	vocabolario["checkpoint"]=CHECK
+	
+	return jsonify(vocabolario)
+
+@app.route("/getupdate")
+def getdbupdate():
+	
+	GRAPH=QUERY_RESULT_JSON("GRAPH")
+	vocabolario={}
+	vocabolario["graph"]=GRAPH
+	
+	return jsonify(vocabolario)
+
+@app.route("/getsettings/<username>")
+def getUserSettingsJson(username):
+	
+	rowarray_list=getUserSettings(username)
+	rowarray_list=json.dumps(rowarray_list)
+	vocabolario={}
+	vocabolario["settings"]=rowarray_list
+	return jsonify(vocabolario)
+
+
+
 #MAIN
 
 if __name__ == '__main__':
-	user=User()
+	user=User()																	#FOR TESTING PURPOSE
 	user.username='Riccardo'
 	user.password='Gavoi91'
 	user.G_key='9p2jhrvdq00b2o8fp34lmurif4%40group.calendar.google.com'
 	All_user[user.username]=user
+	
+	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")			#OPENING CONNECTION TO DATABASE
+	cursor=conn.cursor()
+	
+	query="SELECT * FROM GRAPH"
+	cursor.execute(query)
+	response=cursor.fetchall()
+	
+	for line in response:									#DICTIONARY INIT
+		newline=" ".join(str(l) for l in line)
+		newline=newline.split()
+		diz[newline[0]+newline[1]]=list()
+	conn.close
+	
 	app.run(debug=True, host='0.0.0.0', threaded=True)
 	pass
 	
