@@ -49,7 +49,13 @@
 						</li>
             				</ul>
 					<ul class="nav navbar-nav navbar-right">
-        					<li><a href="{{ url_for('login') }}">Log In</a></li>
+        					<li class="dropdown">
+    							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Login<span class="caret"></span></a>
+    							<ul class="dropdown-menu" role="menu">
+    								<li><a href="{{ url_for('login') }}">Students</a></li>
+    								<li role="presentation" class="divider"></li>
+    								<li><a href="{{ url_for('prof_login') }}">Professors</a></li>
+    							</ul>
         					<li><a href="{{ url_for('registration') }}" class="btn btn-primary btn-xs">Register New Product</a></li>
 					</ul>
         			</div>

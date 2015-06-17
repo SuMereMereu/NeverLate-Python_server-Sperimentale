@@ -53,8 +53,14 @@
 						</li>
             				</ul>
 					<ul class="nav navbar-nav navbar-right">
-        					<li><a href="{{ url_for('login') }}">Log In</a></li>
-        					<li><a href="#" class="btn btn-primary btn-xs">Register New Product</a></li>
+        					<li class="dropdown">
+    							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Login<span class="caret"></span></a>
+    							<ul class="dropdown-menu" role="menu">
+    								<li><a href="{{ url_for('login') }}">Students</a></li>
+    								<li role="presentation" class="divider"></li>
+    								<li><a href="{{ url_for('prof_login') }}">Professors</a></li>
+    							</ul>
+        					<li><a href="{{ url_for('registration') }}" class="btn btn-primary btn-xs">Register New Product</a></li>
 					</ul>
         			</div>
       			</div>
@@ -88,13 +94,20 @@
         						<input type="password" name="password" id="inputPassword" class="form-control" placeholder="Enter Password" required>
         						<input type="password" name="password_rep" class="form-control" id="inputPasswordRepeated" placeholder="Repeat Password" required>
       						</div>
+      						<br>
+      						<br>
+      						<br>
+      						<div class="checkbox">
+    							<label>
+      								<input name="prof_checkbox" type="checkbox"> I am a Professor
+   			 					</label>
+  							</div>
         			</div>
         		</div>
         		<div class="row">
         			<div class="col-md-6">
         				<br>
         				<button class="btn btn-lg btn-primary btn-block {% if session['user'] %} disabled {% endif %}" type="submit">Submit</button>
-        				
         			</div>
         		</div>
         		</form>

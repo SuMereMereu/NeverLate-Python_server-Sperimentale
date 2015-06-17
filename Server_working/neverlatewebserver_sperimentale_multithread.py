@@ -19,8 +19,8 @@ app = Flask(__name__)
 app.secret_key=urandom(24)
 urlScheduleTime = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_orario"
 urlAPIpolito = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_elenco_materie"
+All_prof = {}
 All_user = {} 			#REMOVE WHEN DABASE IS ADDED
-All_prof={}
 nmax=2					#MAX ARCS TO UPLOAD CHANGE IT
 diz={} 					#QUEUE FOR UPDATING TIMETRAVELS
 
@@ -48,19 +48,12 @@ class User:
 		self.email = ""
 		self.G_key = ""
 		self.settings = Settings()
-		self.subjects = []			
+		self.subjects = []
 			
 	def User_Output_List(self):
 		list = []
 		list.append(self.username, self.password, self.email, self.G_key, self.settings.system_status, self.settings.vibration_status, self.settings.sound_status, self.settings.delay, self.settings.default_settings)
 		return list
-
-#MODIFICA Class Subject attendies
-class SubjectAttendies:
-		def __init__(self):
-			self.code=""
-			self.alfabetic=""
-			self.Attendies=[]
 		
 class PolitoRequest:
 	def __init__(self, materia, alfabetica, docente, codice):
@@ -95,6 +88,14 @@ class PolitoCalendar:
 		self.comment = comment
 		self.professor = professor
 		self.classroom = classroom
+		
+class Professor:
+	def __init__(self, username, password, mail):
+		self.G_key = ""
+		self.username = username
+		self.password = password
+		self.mail = mail 
+		self.subjects = {} 
 		
 		
 		
@@ -274,12 +275,23 @@ def index():
     return render_template('index.html')
 
 @app.route('/login', methods=['POST', 'GET'])
-def login():						#REMOVE WHEN DABASE IS ADDED
+def login():
+	if 'prof' in session:
+		return redirect (url_for('default_professor'))						
 	if 'user' in session:
 		return redirect (url_for('default_user'))
 	else:
 		return render_template('login.html', validation_login=request.args.get('valid'))
 
+@app.route('/prof_login')
+def prof_login():
+	if 'user' in session:
+		return redirect (url_for('default_user'))						
+	if 'prof' in session:
+		return redirect (url_for('default_professor'))
+	else:
+		return render_template('prof_login.html', validation_login=request.args.get('valid'))
+		
 @app.route('/vision')
 def vision():
     return render_template('vision.html')
@@ -290,18 +302,17 @@ def requirements():
     
 @app.route('/registration', methods=['POST', 'GET'])
 def registration():
-	'''chiedo le credenziali qua cosi non faccio redirect nella pagina newuser'''
 	if 'credentials' not in session:
-		session['oauthcaller']='registration'												#CHECK FOR THE USER AUTHORIZATION
+		session['oauthcaller']='registration'										#CHECK FOR THE USER AUTHORIZATION
 		return redirect(url_for('oauth2callback'))									#IF NOT PRESENT USER IS REDIRECTED 
 		
 																					#TO GOOGLE PAGE ASKING FOR PERMISSION
 	credentials = client.OAuth2Credentials.from_json(session['credentials'])
 		
 	if credentials.access_token_expired:
-		'''metto questo parametro in sessione per dire ad oauth dove ritornare'''
 		session['oauthcaller']='registration'
 		return redirect(url_for('oauth2callback'))	
+		
 	return render_template('registration.html', error=request.args.get('error'),
 												mail=request.args.get('mail'),
 												psw=request.args.get('psw'),
@@ -340,7 +351,7 @@ def calendar():
 
 
 
-#OPERATIVE URLS
+#GENERAL OPERATIVE URLS
 
 @app.route('/newuser', methods=['POST', 'GET'])
 def newuser():
@@ -352,12 +363,12 @@ def newuser():
 	http_auth = credentials.authorize(httplib2.Http())
 	service = discovery.build('calendar', 'v3', http_auth)
 	
-	
 	email=request.form.get('email')							#COLLECTING DATA FROM FORM IN REGISTRATION PAGE
 	email_rep=request.form.get('email_rep')
 	password=request.form.get('password')
 	password_rep=request.form.get('password_rep')
 	username=request.form.get('username')
+	prof_checkbox=request.form.get('prof_checkbox')
 	
 	error=False
 	mail=""
@@ -365,7 +376,7 @@ def newuser():
 	usrname=""
 	
 	if (email == "" or email_rep == "" or email != email_rep):				#THE FOLLOWING 4 IF CONDION CHECK IF 										
-		error = True														#THE FORM IS FILLED IN THE RIGHT WAY 
+		error = True																					#THE FORM IS FILLED IN THE RIGHT WAY 
 		mail='mail=f'
 	
 	if (password == "" or password_rep == "" or password != password_rep):
@@ -379,27 +390,47 @@ def newuser():
 	if error == True:
 		return redirect(url_for('registration')+"?error=t&"+mail+"&"+psw+"&"+usrname)
 	
-	temp=User()
 	
-	temp.username=username				
-	temp.password=password
-	temp.email=email
-	
-	if username in All_user:		#REMOVE WHEN DABASE IS ADDED			#IF THE USER ALREADY EXISTS THE NEW ONE IS ALERTED
-		return redirect(url_for('login')+"?valid=extUsr")
-	
-	else:	
-		calendar = {'summary': 'neverLate','timeZone': 'Europe/Rome'}					#NEVERLATE CALENDAR CREATION AND STORAGE 
+	if prof_checkbox == 'on':
+		temp = Professor (username, password, email)
+		
+		if username in All_prof:		#REMOVE WHEN DABASE IS ADDED			#IF THE USER ALREADY EXISTS THE NEW ONE IS ALERTED
+			return redirect(url_for('prof_login')+"?valid=extUsr")
+			
+		else:	
+			calendar = {'summary': 'neverLate','timeZone': 'Europe/Rome'}					#NEVERLATE CALENDAR CREATION AND STORAGE 
 																						#OF CALENDAR KEY
-		created_calendar = service.calendars().insert(body=calendar).execute()
-		temp.G_key=created_calendar['id']
+			created_calendar = service.calendars().insert(body=calendar).execute()
+			temp.G_key=created_calendar['id']
 		
 		
-		'''insertUser(temp.User_Output_List())''' #COMMENTATA MOMENTANEAMENTE CHE BLOCCA IL CODICE (CONTIENE SYSTEM STATUS) 
-		All_user[username]=temp				#REMOVE WHEN DABASE IS ADDED
+			insertUser(temp.User_Output_List())
+			All_prof[username]=temp				#REMOVE WHEN DABASE IS ADDED
 		
-		return redirect(url_for('login'))
+			return redirect(url_for('prof_login'))
+		
+	else:
+		
+		temp=User()
+		temp.username=username				
+		temp.password=password
+		temp.email=email
+		
+		if username in All_user:		#REMOVE WHEN DABASE IS ADDED			#IF THE USER ALREADY EXISTS THE NEW ONE IS ALERTED
+			return redirect(url_for('login')+"?valid=extUsr")
 	
+		else:	
+			calendar = {'summary': 'neverLate','timeZone': 'Europe/Rome'}					#NEVERLATE CALENDAR CREATION AND STORAGE 
+																						#OF CALENDAR KEY
+			created_calendar = service.calendars().insert(body=calendar).execute()
+			temp.G_key=created_calendar['id']
+		
+		
+			#insertUser(temp.User_Output_List())
+			All_user[username]=temp				#REMOVE WHEN DABASE IS ADDED
+		
+			return redirect(url_for('login'))
+
 @app.route('/oauth2callback')		#GOOGLE CALENDAR PAGE ASKING FOR USER AUTHORIZATION, STANDARD FUNCTION
 def oauth2callback():
 	var=request.args.get('var')
@@ -418,6 +449,22 @@ def oauth2callback():
           	redirectString=session['oauthcaller']
           	del session['oauthcaller']
            	return redirect(url_for(redirectString))
+           	
+@app.route('/logout')						#LOGOUT FUNCTION
+def logout():
+	if 'user' in session:
+		del session['user']
+		
+	if 'prof' in session:
+		del session['prof']
+		
+	if 'credentials' in session:
+		del session['credentials']
+	return redirect(url_for('index'))
+
+
+
+#OPERATIVE URLS STUDENTS
 
 @app.route('/loggining', methods=['POST', 'GET'])	#CREATION A SESSION FROM AN EXISTING USER
 def loggining():
@@ -440,7 +487,7 @@ def loggining():
 			return redirect(url_for('login')+"?valid=NoUsr")
 			
 		else:
-			return redirect(url_for('login')+"?valid=UsrF")	
+			return redirect(url_for('login')+"?valid=UsrF")				
 	
 @app.route('/G_key_mod', methods=['POST', 'GET'])	#GOOGLE CALENDAR KEY MODIFICATION
 def Gkeymod():
@@ -551,32 +598,7 @@ def cal_step2():
 		if control == temp and exit:										#IF THERE IS A MATCH BETWEEN THE SELECTED ITEM AND ANY ELEMENT IN THE TEMPORARLY SUBJECT LIST
 			dict_to_obj=PolitoRequest(subject['subj'], subject['alpha'], subject['prof'], subject['code'])
 			dict_to_obj.uploaded = False		  
-			All_user[session['user']].subjects.append(dict_to_obj) #TROVARE SOLUZIONE PER CARICARE OGGETTO, STORED IN DATABASE, THE SUBJECT IS ADDED IN THE USER'S OFFICIAL SUBJECT LIST
-			#insert the student in the attendies of that subject
-			if subject['prof'] in All_prof: #check 1: Is the prof in the list of prof?
-				if subject['subj'] in All_prof['prof']:#check 2: Is the subject in the list of sublects of the prof?
-					AttendieDontExist=0#check 3:the user is already in the attendie list? 
-					for attendie in All_prof['prof']['subj'].Attendies:
-						if session['user']==attendie:
-							AttendieDontExist=1
-					if AttendieDontExist:
-						All_prof['prof']['subj'].Attendies.append(session['user'])
-				else:
-					NewSubject=SubjectAttendies()
-					NewSubject.code=subject['code']
-					NewSubject.alfabetic=subject['alpha']
-					NewSubject.Attendies.append(session['user'])
-					All_prof['prof'][subject['subj']]=NewSubject
-			else:
-				All_prof[subject['prof']]={}
-				NewSubject=SubjectAttendies()
-				NewSubject.code=subject['code']
-				NewSubject.alfabetic=subject['alpha']
-				NewSubject.Attendies.append(session['user'])
-				All_prof[subject['prof']][subject['subj']]=NewSubject
-					
-			
-
+			All_user[session['user']].subjects.append(dict_to_obj)			#TROVARE SOLUZIONE PER CARICARE OGGETTO, STORED IN DATABASE, THE SUBJECT IS ADDED IN THE USER'S OFFICIAL SUBJECT LIST
 			exit = False
 	
 	for subject in All_user[session['user']].subjects:														#SYNCRONIZATION WITH GOOGLE CALENDAR IS CHECKED FOR 
@@ -584,8 +606,7 @@ def cal_step2():
 			scheduleParameters = { 'listachiavimaterie': subject.code, 'datarif': str(date.today())}
 			APIrequest = requests.post(urlScheduleTime, json=scheduleParameters)
 			schedule = APIrequest.json()
-			APIrequest.close()
-			#ho spostato oneweekspan dentro l'if	
+			APIrequest.close()	
 			if schedule['d']:
 				OneWeekSpan= timedelta(7,0,0)+DateFormat(schedule['d'][0]['start'])
 				for item in schedule['d']:
@@ -603,14 +624,33 @@ def cal_step2():
 			
 	del session['search_res']
 	return redirect(url_for('calendar'))
+
+
 	
-@app.route('/logout')						#LOGOUT FUNCTION
-def logout():
-	del session['user']
-	'''credo che serva'''
-	if 'credentials' in session:
-		del session['credentials']
-	return redirect(url_for('index'))
+#OPERATIVE URLS PROFESSORS
+
+@app.route('/prof_loggining')
+def prof_loggining():
+	global All_prof				#REMOVE WHEN DABASE IS ADDED
+	username=request.form.get('username')
+	password=request.form.get('password')
+	
+	if username in All_prof:											#CHECK FOR AN EXISTING USER, AND
+		check=All_prof[username]										#EVENTUALLY, IF USER'S PASSWORD IS CORRECT		
+		if check.password == password:
+			session['prof']=username
+			
+											 
+			return redirect( url_for('default_professor'))		
+		
+		else:
+			return redirect(url_for('prof_login')+"?valid=PswF")
+	else:
+		if username == "":
+			return redirect(url_for('prof_login')+"?valid=NoUsr")
+			
+		else:
+			return redirect(url_for('prof_login')+"?valid=UsrF")
 
 
 
