@@ -536,7 +536,6 @@ def Gkeymod():
 	global All_user
 	if not 'user' in session:
 		return redirect(url_for('login')+"?valid=Exprd")
-	
 	All_user[session['user']].G_key=request.form.get('G_key')
 	
 	
@@ -671,6 +670,11 @@ def cal_step2():
 							event=format_schedule(item['text'])
 							event.start=item['start']
 							event.end=item['end']
+							event.professor=item['nominativo_docente']
+							event.comment=item['desc_evento']
+							event.subject=item['titolo_materia']
+							event.classroom=item['aula']#Note instead of Aula 4D says 4D
+							
 							G_cal_request= {"end":{"dateTime": event.end,"timeZone":"Europe/Rome"}, "start":{"dateTime": event.start,"timeZone":"Europe/Rome"}, "recurrence":["RRULE:FREQ=WEEKLY;UNTIL=20150631T170000Z"], "summary": event.subject, "description": event.comment+' '+event.professor, "location": event.classroom, "colorId":"3"}
 							'''modifica calendarId=All_user[session[user]].Gkey'''
 							created_event=service.events().insert(calendarId=session['Gkey'], body=G_cal_request).execute()
