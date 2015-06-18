@@ -391,6 +391,7 @@ def settings():
 def calendar():
 	if 'user' in session:
 		lista=getUserSettings(session['user'])
+		session['Gkey']=lista[0]
 		return render_template('calendar.html', Gk=lista[0],
 												search=request.args.get('search'))
 	else:
@@ -502,6 +503,7 @@ def oauth2callback():
 def logout():
 	if 'user' in session:
 		del session['user']
+		del session['Gkey']
 		
 	if 'prof' in session:
 		del session['prof']
@@ -521,7 +523,7 @@ def loggining():
 	password=request.form.get('password')
 	
 	if getUser(username):		#CHECK FOR AN EXISTING USER, AND	
-		print getPass(username)						#EVENTUALLY, IF USER'S PASSWORD IS CORRECT		
+								#EVENTUALLY, IF USER'S PASSWORD IS CORRECT		
 		if password==getPass(username):
 			session['user']=username
 													 
@@ -601,8 +603,10 @@ def cal_step1():
 		for subject in temp:
 			flag=True
 			''' qua midava errore quando provavo a inserire una seconda materia ho fatto il ciclo col break'''
-			for personal_subj in All_user[session['user']].subjects:			#ONLY THE SUBJECTS NOT IN THE USER'S PERSONAL DATA ARE STORED TEMPORARLY 
-				if subject.code == personal_subj.code:									#IN THE DATABASE
+			if  session['user'] not in All_user:
+				All_user[session['user']]=[]
+			for personal_subj in All_user[session['user']]:			#ONLY THE SUBJECTS NOT IN THE USER'S PERSONAL DATA ARE STORED TEMPORARLY 
+				if subject.code == personal_subj.code:									
 					flag = False
 					break
 			if flag:
@@ -645,14 +649,14 @@ def cal_step2():
 		if control == temp and exit:										#IF THERE IS A MATCH BETWEEN THE SELECTED ITEM AND ANY ELEMENT IN THE TEMPORARLY SUBJECT LIST
 			dict_to_obj=PolitoRequest(subject['subj'], subject['alpha'], subject['prof'], subject['code'])
 			dict_to_obj.uploaded = False		  
-			All_user[session['user']].subjects.append(dict_to_obj)			#TROVARE SOLUZIONE PER CARICARE OGGETTO, STORED IN DATABASE, THE SUBJECT IS ADDED IN THE USER'S OFFICIAL SUBJECT LIST
+			All_user[session['user']].append(dict_to_obj)			#TROVARE SOLUZIONE PER CARICARE OGGETTO, STORED IN DATABASE, THE SUBJECT IS ADDED IN THE USER'S OFFICIAL SUBJECT LIST
 			exit = False
 	
-	for subject in All_user[session['user']].subjects:														#SYNCRONIZATION WITH GOOGLE CALENDAR IS CHECKED FOR 
+	for subject in All_user[session['user']]:														#SYNCRONIZATION WITH GOOGLE CALENDAR IS CHECKED FOR 
 		if subject.uploaded == False:
-			if subject.professor in All_prof:#Pingable subject
-				if subject.code in All_prof[subject.professor].inviteKeys:
-					for inviteKey in All_prof[subject.professor].inviteKeys:
+			if subject.professor in All_prof:#getifUserpresent
+				if subject.code in All_prof[subject.professor].inviteKeys:#remove
+					for inviteKey in All_prof[subject.professor].inviteKeys[subject.code]:
 						event = service.events().get(calendarId=All_prof[subject.professor].G_key, eventId=inviteKey).execute()
 						attendeeList=event["attendees"]
 						attendee={}
@@ -675,7 +679,7 @@ def cal_step2():
 							event.end=item['end']
 							G_cal_request= {"end":{"dateTime": event.end,"timeZone":"Europe/Rome"}, "start":{"dateTime": event.start,"timeZone":"Europe/Rome"}, "recurrence":["RRULE:FREQ=WEEKLY;UNTIL=20150631T170000Z"], "summary": event.subject, "description": event.comment+' '+event.professor, "location": event.classroom, "colorId":"3"}
 							'''modifica calendarId=All_user[session[user]].Gkey'''
-							created_event=service.events().insert(calendarId=All_user[session['user']].G_key, body=G_cal_request).execute()
+							created_event=service.events().insert(calendarId=session['Gkey'], body=G_cal_request).execute()
 							subject.uploaded=True
 				else:
 					pass
