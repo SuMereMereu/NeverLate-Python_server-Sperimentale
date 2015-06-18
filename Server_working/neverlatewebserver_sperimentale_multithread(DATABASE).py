@@ -330,7 +330,7 @@ def login():
 def prof_login():
 	if 'user' in session:
 		return redirect (url_for('default_user'))						
-	if 'prof' in session:
+	elif 'prof' in session:
 		return redirect (url_for('default_professor'))
 	else:
 		return render_template('prof_login.html', validation_login=request.args.get('valid'))
@@ -436,48 +436,29 @@ def newuser():
 		usrname='usrname=f'
 	
 	if error == True:
-		return redirect(url_for('registration')+"?error=t&"+mail+"&"+psw+"&"+usrname)
-	
-	
-	if prof_checkbox == 'on':
-		temp = Professor (username, password, email)
+		return redirect(url_for('registration')+"?error=t&"+mail+"&"+psw+"&"+usrname)	
+	temp=User()
+	temp.username=username				
+	temp.password=password
+	temp.email=email
 		
-		if username in All_prof:		#REMOVE WHEN DABASE IS ADDED			#IF THE USER ALREADY EXISTS THE NEW ONE IS ALERTED
+	if getUser(username):			#IF THE USER ALREADY EXISTS THE NEW ONE IS ALERTED
+		if prof_checkbox == 'on':					
 			return redirect(url_for('prof_login')+"?valid=extUsr")
-			
 		else:	
-			calendar = {'summary': 'neverLate','timeZone': 'Europe/Rome'}					#NEVERLATE CALENDAR CREATION AND STORAGE 
-																						#OF CALENDAR KEY
-			created_calendar = service.calendars().insert(body=calendar).execute()
-			temp.G_key=created_calendar['id']
-		
-		
-			insertUser(temp.User_Output_List())
-			All_prof[username]=temp				#REMOVE WHEN DABASE IS ADDED
-		
-			return redirect(url_for('prof_login'))
-		
-	else:
-		
-		temp=User()
-		temp.username=username				
-		temp.password=password
-		temp.email=email
-		
-		if username in All_user:		#REMOVE WHEN DABASE IS ADDED			#IF THE USER ALREADY EXISTS THE NEW ONE IS ALERTED
 			return redirect(url_for('login')+"?valid=extUsr")
 	
-		else:	
-			calendar = {'summary': 'neverLate','timeZone': 'Europe/Rome'}					#NEVERLATE CALENDAR CREATION AND STORAGE 
+	else:	
+		calendar = {'summary': 'neverLate','timeZone': 'Europe/Rome'}					#NEVERLATE CALENDAR CREATION AND STORAGE 
 																						#OF CALENDAR KEY
-			created_calendar = service.calendars().insert(body=calendar).execute()
-			temp.G_key=created_calendar['id']
+		created_calendar = service.calendars().insert(body=calendar).execute()
+		temp.G_key=created_calendar['id']
 		
-		
-		
-			'''All_user[username]=temp'''				
-			insertUser(temp.User_Output_List())			#INSERTION IN DATABASE 'USERS'
-		
+		'''All_user[username]=temp'''				
+		insertUser(temp.User_Output_List())			#INSERTION IN DATABASE 'USERS'
+		if prof_checkbox == 'on':					#PROF AND USER ARE IN THE SAME DATABASE BUT ACCES DIFFERENT PAGES
+			return redirect(url_for('prof_login'))
+		else:	
 			return redirect(url_for('login'))
 
 @app.route('/oauth2callback')		#GOOGLE CALENDAR PAGE ASKING FOR USER AUTHORIZATION, STANDARD FUNCTION
@@ -654,7 +635,8 @@ def cal_step2():
 	
 	for subject in All_user[session['user']]:														#SYNCRONIZATION WITH GOOGLE CALENDAR IS CHECKED FOR 
 		if subject.uploaded == False:
-			if subject.professor in All_prof:#getifUserpresent
+			if 1==0:
+				'''subject.professor in All_prof:#getifUserpresent
 				if subject.code in All_prof[subject.professor].inviteKeys:#remove
 					for inviteKey in All_prof[subject.professor].inviteKeys[subject.code]:
 						event = service.events().get(calendarId=All_prof[subject.professor].G_key, eventId=inviteKey).execute()
@@ -662,7 +644,7 @@ def cal_step2():
 						attendee={}
     					attendee['email']=All_user[session['user']].G_key
     					attendeeList.append(attendee)
-    					updated_event = service.events().update(calendarId=All_prof[subject.professor], eventId=inviteKey, body=event).execute()
+    					updated_event = service.events().update(calendarId=All_prof[subject.professor], eventId=inviteKey, body=event).execute()'''
 			else:#NON PINGABLE SUBJECT
 																					#EACH ELEMENT OF THE USER'S OFFICIAL SUBJECT LIST
 				scheduleParameters = { 'listachiavimaterie': subject.code, 'datarif': str(date(2015,5,29))}
@@ -691,15 +673,15 @@ def cal_step2():
 	
 #OPERATIVE URLS PROFESSORS
 
-@app.route('/prof_loggining')
+@app.route('/prof_loggining',methods=['POST', 'GET'])
 def prof_loggining():
 	global All_prof				#REMOVE WHEN DABASE IS ADDED
 	username=request.form.get('username')
 	password=request.form.get('password')
 	
-	if username in All_prof:											#CHECK FOR AN EXISTING USER, AND
-		check=All_prof[username]										#EVENTUALLY, IF USER'S PASSWORD IS CORRECT		
-		if check.password == password:
+	if getUser(username):		#CHECK FOR AN EXISTING USER, AND	
+								#EVENTUALLY, IF USER'S PASSWORD IS CORRECT		
+		if password==getPass(username):
 			session['prof']=username
 			
 											 
