@@ -25,6 +25,5 @@ NOTA NICOLA:
 	Modificare GMod (versione per prof, versione database) o crearene una versione per prof
 	Setting e Calendar per Prof
 	(X SAVO)la funzione getquery(key) contiene un errore (sotto commento lancio processo update
-	(X SAVO) serve un metodo per fare l'update della G_key (pagina g_keymod)
  
 	

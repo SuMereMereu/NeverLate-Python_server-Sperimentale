@@ -376,6 +376,18 @@ def default_user():
 													Gk=lista[0])
 	else:
 		return redirect(url_for('login'))
+	
+@app.route('/professor/first', methods=['POST', 'GET'])
+def default_professor():
+	if 'prof' in session:
+		lista=getUserSettings(session['prof'])
+		
+		return render_template('default_professor.html',	vib=lista[1],
+													sound=lista[2],
+													delay=lista[4],
+													Gk=lista[0])
+	else:
+		return redirect(url_for('prof_login'))
 
 @app.route('/user/settings', methods=['POST', 'GET'])
 def settings():
