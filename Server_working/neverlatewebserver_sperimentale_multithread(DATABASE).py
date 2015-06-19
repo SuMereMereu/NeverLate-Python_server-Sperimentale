@@ -772,7 +772,6 @@ def cal_step2():
 							event.classroom=item['aula']#Note instead of Aula 4D says 4D
 							
 							G_cal_request= {"end":{"dateTime": event.end,"timeZone":"Europe/Rome"}, "start":{"dateTime": event.start,"timeZone":"Europe/Rome"}, "recurrence":["RRULE:FREQ=WEEKLY;UNTIL=20150631T170000Z"], "summary": event.subject, "description": event.comment+' '+event.professor, "location": event.classroom, "colorId":"3"}
-							'''modifica calendarId=All_user[session[user]].Gkey'''
 							created_event=service.events().insert(calendarId=session['Gkey'], body=G_cal_request).execute()
 							subject.uploaded=True
 				else:
@@ -831,7 +830,7 @@ def prof_cal_step1():
 	global urlAPIpolito
 	
 	if not 'prof' in session:
-		return redirect(url_for('login')+"?valid=Exprd")
+		return redirect(url_for('prof_login')+"?valid=Exprd")
 	
 	search=""
 	
@@ -876,6 +875,72 @@ def prof_cal_step1():
 			
 	else:
 		return redirect(url_for('prof_calendar')+"?select=empty")
+
+@app.route('/prof_calendar_step2', methods=['POST', 'GET'])		#NEW SUBJECT ADDITION
+def prof_cal_step2():
+	global All_user
+	temp=request.form.get('prof_subjects')
+																							#TO GOOGLE PAGE ASKING FOR PERMISSION	
+	
+	if 'credentials' not in session:
+		session['oauthcaller']='prof_cal_step2'																				#CHECK FOR THE USER AUTHORIZATION
+		return redirect(url_for('oauth2callback'))								#IF NOT PRESENT USER IS REDIRECTED
+	
+	credentials = client.OAuth2Credentials.from_json(session['credentials'])
+		
+	if credentials.access_token_expired:
+		session['oauthcaller']='prof_cal_step2'	
+		return redirect(url_for('oauth2callback'))
+			
+	else:
+		http_auth = credentials.authorize(httplib2.Http())
+		service = discovery.build('calendar', 'v3', http_auth)
+	
+	exit = True
+	
+	for subject in session['search_res']:
+		control=subject['subj']+", "+subject['alpha']+", "+subject['prof']+", quadrimestre # "+subject['code'][9]
+		if control == temp and exit:
+													#IF THERE IS A MATCH BETWEEN THE SELECTED ITEM AND ANY ELEMENT IN THE TEMPORARLY SUBJECT LIST
+			dict_to_obj=PolitoRequest(subject['subj'], subject['alpha'], subject['prof'], subject['code'])
+			dict_to_obj.uploaded = False		  
+			All_user[session['prof']].append(dict_to_obj)			#TROVARE SOLUZIONE PER CARICARE OGGETTO, STORED IN DATABASE, THE SUBJECT IS ADDED IN THE USER'S OFFICIAL SUBJECT LIST
+			print "%s"%(getIfUserIsPresent(subject['prof']))
+			if not getIfUserIsPresent(subject['prof']):
+				insertInProfUser(subject['prof'], session['prof'], session['Gkey'])
+			exit = False
+	
+	for subject in All_user[session['prof']]:														#SYNCRONIZATION WITH GOOGLE CALENDAR IS CHECKED FOR 
+		if subject.uploaded == False:																#EACH ELEMENT OF THE USER'S OFFICIAL SUBJECT LIST
+			scheduleParameters = { 'listachiavimaterie': subject.code, 'datarif': str(date(2015,5,29))}
+			APIrequest = requests.post(urlScheduleTime, json=scheduleParameters)
+			schedule = APIrequest.json()
+			APIrequest.close()	
+			if schedule['d']:
+				OneWeekSpan= timedelta(7,0,0)+DateFormat(schedule['d'][0]['start'])
+				listEventKeys=[]
+				for item in schedule['d']:
+					if DateFormat(item['start']) < OneWeekSpan:
+						event=PolitoCalendar()
+						event=format_schedule(item['text'])
+						event.start=item['start']
+						event.end=item['end']
+						event.professor=item['nominativo_docente']
+						event.comment=item['desc_evento']
+						event.subject=item['titolo_materia']
+						event.classroom=item['aula']#Note instead of Aula 4D says 4D
+							
+						G_cal_request= {"end":{"dateTime": event.end,"timeZone":"Europe/Rome"}, "start":{"dateTime": event.start,"timeZone":"Europe/Rome"}, "recurrence":["RRULE:FREQ=WEEKLY;UNTIL=20150631T170000Z"], "summary": event.subject, "description": event.comment+' '+event.professor, "location": event.classroom, "colorId":"3"}
+						created_event=service.events().insert(calendarId=session['Gkey'], body=G_cal_request).execute()
+						listEventKeys.append(created_event['id'])
+						subject.uploaded=True
+				insertInviteKey(session['Gkey'], subject.code, listEventKeys)
+			else:
+				pass
+			
+	del session['search_res']
+	return redirect(url_for('prof_calendar'))
+
 
 #REST URL
 

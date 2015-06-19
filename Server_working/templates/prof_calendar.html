@@ -108,9 +108,9 @@
         												<hr class="featurette-divider">
         												<button type="submit" id="change" class="btn btn-primary btn-lg text-center">Search</button>
         											</form>
-        											<form action="{{ url_for('cal_step2') }}" method='POST'>
+        											<form action="{{ url_for('prof_cal_step2') }}" method='POST'>
         												<h4>Select one result</h4>
-    													<select multiple class="form-control" name="subjects" id="subjects">
+    													<select multiple class="form-control" name="prof_subjects" id="prof_subjects">
     														{% if session['search_res'] %}
     															{% for subject in session['search_res'] %}
     																<option>{{ subject['subj']+", "+subject['alpha']+", "+subject['prof']+", quadrimestre # "+subject['code'][9] }}</option>
