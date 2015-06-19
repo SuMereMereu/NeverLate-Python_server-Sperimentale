@@ -474,6 +474,17 @@ def settings():
 	else:
 		return redirect(url_for('login'))
 
+@app.route('/professor/settings', methods=['POST', 'GET'])
+def prof_settings():
+	if 'prof' in session:
+		lista=getUserSettings(session['prof'])
+		return render_template('prof_settings.html',	vib=lista[1],
+												sound=lista[2],
+												delay=lista[4])
+	else:
+		return redirect(url_for('prof_login'))
+
+
 @app.route('/user/calendar', methods=['POST', 'GET'])
 def calendar():
 	if 'user' in session:
@@ -787,7 +798,23 @@ def prof_loggining():
 		else:
 			return redirect(url_for('prof_login')+"?valid=UsrF")
 
-
+@app.route('/prof_settings_definition', methods=['POST', 'GET']) #PERSONAL SETTINGS CUSTOMIZATION
+def prof_settings_def():
+	global All_user
+	if 'prof' in session:
+		lista=[]
+		lista.append(session['prof'])
+		lista.append(request.form.get('vibration'))		
+		lista.append(request.form.get('sound'))
+		lista.append(request.form.get('delay'))
+		lista.append("f")
+		
+		insertSettingsUser(lista) 			#ADDING USER SETTINGS TO DATABASE
+		
+		return redirect(url_for('prof_settings'))
+		
+	else:
+		return redirect(url_for('prof_login')+"?valid=Exprd")
 
 #REST URL
 
