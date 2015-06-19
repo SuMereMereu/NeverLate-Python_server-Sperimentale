@@ -12,7 +12,7 @@ import requests
 import httplib2
 import json
 import MySQLdb
-
+from multiprocessing import Process
 #GLOBAL VARIABLES
 
 app = Flask(__name__)
@@ -101,7 +101,7 @@ class PolitoCalendar:
 		self.professor = professor
 		self.classroom = classroom
 		
-class Professor:
+class Professor:#OBSOLETE
 	def __init__(self, username, password, mail):
 		self.G_key = ""
 		self.username = username
@@ -112,7 +112,7 @@ class Professor:
 #ASSOCIATION DICTIONARY: GIVES THE ASSOCIATION BETWEEN A PROF NAME OF THE POLITO CALENDAR
 #API AND ITS USERNAME
 
-Association={}	
+Association={}	#OBSOLETE
 		
 		
 #GLOBAL FUNCTIONS
@@ -207,13 +207,83 @@ def getUser(username):
 	
 	query="SELECT UserName FROM USERS WHERE UserName='%s'"%(username)
 	cursor.execute(query)
-	settings=cursor.fetchall()
+	settings=cursor.fetchone()
 	conn.close()
 	if settings!=None:
 		return True
 	else:
 		return False	
+
+#DATABASE FOR PING
+def insertInProfUser(FullName,UserName,GCKey):
+	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
+	cursor=conn.cursor()
 	
+	query="INSERT INTO PROF_USER VALUES('%s','%s','%s')"%(UserName,FullName,GCKey)
+	cursor.execute(query)
+	conn.commit()
+	conn.close()
+	
+def getIfUserIsPresent(FullName):
+	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
+	cursor=conn.cursor()
+	
+	query="SELECT * FROM PROF_USER WHERE FullName='%s'"%(FullName)
+	cursor.execute(query)
+	number=cursor.fetchone()
+	conn.close()
+	
+	if number !=None:
+		return True
+	else:
+		return False
+	
+def getGCalKeyProfessor(FullName):
+	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
+	cursor=conn.cursor()
+	
+	query="SELECT GoogleCalKey FROM PROF_USER WHERE FullName='%s'"%(FullName)
+	
+	cursor.execute(query)
+	users=cursor.fetchall()
+	for line in users:
+		newline=" ".join(str(l) for l in line)
+		
+	conn.close()
+	
+	return newline
+
+def insertInviteKey(GCalKey,ApiSubjectCode,lista):  
+	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
+	cursor=conn.cursor()
+	for InvKey in lista:
+		query="INSERT INTO INVITES VALUES('%s','%s','%s')"%(GCalKey,ApiSubjectCode,InvKey)
+		cursor.execute(query)
+	conn.commit()
+	
+	conn.close() 
+	
+def getInviteKey(FullName,ApiSubjectCode):
+	
+	GoogleCalKey=getGCalKeyProfessor(FullName)
+
+	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
+	cursor=conn.cursor()
+	
+	query="SELECT InviteKey FROM INVITES WHERE GoogleCalKey='%s' AND ApiSubjectCode='%s'"%(GoogleCalKey,ApiSubjectCode)
+	
+	cursor.execute(query)
+	invites=cursor.fetchall()
+	invitelist=[]
+	for line in invites:
+		newline=" ".join(str(l) for l in line)
+		invitelist.append(newline)
+		
+	conn.close()
+	print invitelist
+	return invitelist	
+
+
 
 def getUsersAttendACourse(courseCode):
 	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
@@ -262,6 +332,8 @@ def getPass(username):
 	
 	return newline[0]
 
+#Graph
+
 def updateDatabase(lista,Place1,Place2):
 	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
 	cursor=conn.cursor()
@@ -290,6 +362,7 @@ def updateDatabase(lista,Place1,Place2):
 	conn.close
 	
 def QUERY_RESULT_JSON(tablename):
+
 	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
 	cursor=conn.cursor()
 	query="SELECT * FROM %s" %(tablename)
@@ -311,7 +384,9 @@ def QUERY_RESULT_JSON(tablename):
 
 
 
+
 #HTML PAGES RENDERING
+
 
 @app.route('/')
 def index():

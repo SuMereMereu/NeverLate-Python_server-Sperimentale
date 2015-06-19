@@ -119,7 +119,7 @@ def USER_CREATION():
     
     
     query='CREATE TABLE IF NOT EXISTS USERS(UserName VARCHAR(20) PRIMARY KEY,Password VARCHAR(20)NOT NULL,\
-            Mail VARCHAR(30) NOT NULL,GoogleCalKey VARCHAR(50) NOT NULL,VibrationStatus VARCHAR(5),\
+            Mail VARCHAR(30) NOT NULL,GoogleCalKey VARCHAR(60) NOT NULL,VibrationStatus VARCHAR(5),\
             SoundStatus VARCHAR(5),DefaultValue VARCHAR(5),Delay TINYINT(4))'
     cursor.execute(query)
     
@@ -132,6 +132,11 @@ def USER_CREATION():
         FOREIGN KEY(UserName) REFERENCES USERS(UserName),FOREIGN KEY(ApiSubjectCode) REFERENCES SUBJECTS(ApiSubjectCode))'
     cursor.execute(query)
     
+    query='CREATE TABLE IF NOT EXISTS PROF_USER(UserName VARCHAR(30),FullName VARCHAR(30),GoogleCalKey VARCHAR(60),PRIMARY KEY(UserName))'
+    cursor.execute(query)
+    
+    query='CREATE TABLE IF NOT EXISTS INVITES(GoogleCalKey VARCHAR(60),ApiSubjectCode VARCHAR(50),InviteKey VARCHAR(50),PRIMARY KEY(GoogleCalKey,ApiSubjectCode,InviteKey))'
+    cursor.execute(query)
     
     conn.commit()
     conn.close
