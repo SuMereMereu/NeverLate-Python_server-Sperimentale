@@ -495,6 +495,16 @@ def calendar():
 	else:
 		return redirect(url_for('login'))
 
+@app.route('/professor/calendar', methods=['POST', 'GET'])
+def prof_calendar():
+	if 'prof' in session:
+		lista=getUserSettings(session['prof'])
+		session['Gkey']=lista[0]
+		return render_template('prof_calendar.html', Gk=lista[0],
+												search=request.args.get('search'))
+	else:
+		return redirect(url_for('prof_login'))
+
 
 
 #GENERAL OPERATIVE URLS
@@ -815,6 +825,57 @@ def prof_settings_def():
 		
 	else:
 		return redirect(url_for('prof_login')+"?valid=Exprd")
+
+@app.route('/prof_calendar_step1', methods=['POST', 'GET'])		#NEW SUBJECT SEARCH
+def prof_cal_step1():
+	global urlAPIpolito
+	
+	if not 'prof' in session:
+		return redirect(url_for('login')+"?valid=Exprd")
+	
+	search=""
+	
+	session['search_res']=[]
+	search=request.form.get('search')
+	
+	if search == "":
+		del session['search_res']
+		return redirect(url_for('calendar'))
+	
+	APIrequest = requests.post(urlAPIpolito, json= { 'txt': search })		#COMUNICATION WITH POLITO API
+	
+	received=APIrequest.json()
+	
+	APIrequest.close()
+	
+	temp=[]						
+	
+	if received['d']:						#CONDITION CHECKING ELEMENTS ON RESPONSE LIST															
+		for element in received['d']:
+			temp_obj=PolitoRequest(element['materia'], element['alfabetica'], element['docente'], element['chiave'])	#IMPORTING RESPONSE ELEMENTS
+			temp.append(temp_obj)	   			#LOCAL STORAGE OF RESPONSE ELEMENTS		
+	
+	if temp:						#CHECK OF LOCAL DATA (IF PRESENT OR NOT)
+		for subject in temp:
+			flag=True
+			''' qua midava errore quando provavo a inserire una seconda materia ho fatto il ciclo col break'''
+			if  session['prof'] not in All_user:
+				All_user[session['prof']]=[]
+			for personal_subj in All_user[session['prof']]:			#ONLY THE SUBJECTS NOT IN THE USER'S PERSONAL DATA ARE STORED TEMPORARLY 
+				if subject.code == personal_subj.code:									
+					flag = False
+					break
+			if flag:
+				session['search_res'].append(subject.dict_for_session())
+			
+		if not session['search_res']:
+			return redirect(url_for('prof_calendar')+"?select=empty")
+		
+		else:
+			return redirect(url_for('prof_calendar')+"?search="+search)
+			
+	else:
+		return redirect(url_for('prof_calendar')+"?select=empty")
 
 #REST URL
 

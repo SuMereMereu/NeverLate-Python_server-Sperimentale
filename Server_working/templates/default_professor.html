@@ -82,7 +82,7 @@
                     				<a href="{{ url_for('prof_settings') }}" id="settings_sidebar">Settings</span></a>
                 			</li>
                 			<li>
-                    				<a href="{{ url_for('calendar') }}" id="calendar_sidebar">Calendar</a>
+                    				<a href="{{ url_for('prof_calendar') }}" id="calendar_sidebar">Calendar</a>
                 			</li>
             			</ul>
         		</div>
@@ -98,7 +98,7 @@
 										<ul class="nav nav-tabs visible-xs">
 											<li role="presentation" ><a href="{{ url_for('default_professor') }}" id="firstp_nav" active>First Page</a></li>
 											<li role="presentation" ><a href="{{ url_for('prof_settings') }}" id="settings_nav">Settings</a></li>
-											<li role="presentation" ><a href="{{ url_for('calendar') }}" id="calendar_nav">Calendar</a></li>
+											<li role="presentation" ><a href="{{ url_for('prof_calendar') }}" id="calendar_nav">Calendar</a></li>
 										</ul>
                         				<h1 class="page-header">{{ session['prof'] }}</h1>
 										<div id="firstp">
