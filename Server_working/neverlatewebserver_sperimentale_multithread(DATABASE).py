@@ -280,7 +280,6 @@ def getInviteKey(FullName,ApiSubjectCode):
 		invitelist.append(newline)
 		
 	conn.close()
-	print invitelist
 	return invitelist	
 
 
@@ -712,9 +711,9 @@ def cal_step1():
 @app.route('/calendar_step2', methods=['POST', 'GET'])		#NEW SUBJECT ADDITION
 def cal_step2():
 	global All_user
-	temp=request.form.get('subjects')
-																							#TO GOOGLE PAGE ASKING FOR PERMISSION	
-	
+	temp=request.form.get('subjects')			
+	temp="Elaborazione di immagine e video, AA - ZZ, BIANCHI TIZIANO, quadrimestre # 2"																	#TO GOOGLE PAGE ASKING FOR PERMISSION	
+	print "%s" %(temp)
 	
 	if 'credentials' not in session:
 		session['oauthcaller']='cal_step2'																				#CHECK FOR THE USER AUTHORIZATION
@@ -734,6 +733,7 @@ def cal_step2():
 	
 	for subject in session['search_res']:
 		control=subject['subj']+", "+subject['alpha']+", "+subject['prof']+", quadrimestre # "+subject['code'][9]
+		print "%s" %(control)
 		if control == temp and exit:										#IF THERE IS A MATCH BETWEEN THE SELECTED ITEM AND ANY ELEMENT IN THE TEMPORARLY SUBJECT LIST
 			dict_to_obj=PolitoRequest(subject['subj'], subject['alpha'], subject['prof'], subject['code'])
 			dict_to_obj.uploaded = False		  
@@ -742,16 +742,25 @@ def cal_step2():
 	
 	for subject in All_user[session['user']]:														#SYNCRONIZATION WITH GOOGLE CALENDAR IS CHECKED FOR 
 		if subject.uploaded == False:
-			if 1==0:
-				'''subject.professor in All_prof:#getifUserpresent
-				if subject.code in All_prof[subject.professor].inviteKeys:#remove
-					for inviteKey in All_prof[subject.professor].inviteKeys[subject.code]:
-						event = service.events().get(calendarId=All_prof[subject.professor].G_key, eventId=inviteKey).execute()
+			if getIfUserIsPresent(subject.prof):
+				ProfGCal=getGCalKeyProfessor(subject.prof)
+				inviteKeys=getInviteKey(subject.prof, subject.code)
+				for inviteKey in inviteKeys:#AUTOINVITATION
+					event = service.events().get(calendarId=ProfGCal, eventId=inviteKey).execute()
+					if 'attendees' in event:#AUTOINVITATION AFTER OTHER STUDENTS
 						attendeeList=event["attendees"]
 						attendee={}
-    					attendee['email']=All_user[session['user']].G_key
-    					attendeeList.append(attendee)
-    					updated_event = service.events().update(calendarId=All_prof[subject.professor], eventId=inviteKey, body=event).execute()'''
+						attendee['email']=session['Gkey']
+						attendeeList.append(attendee)
+						event["attendees"]=attendeeList
+						updated_event = service.events().update(calendarId=ProfGCal, eventId=inviteKey, body=event).execute()
+					else:#FIRST AUTOINVITATION
+						attendeeList=[]
+						attendee={}
+						attendee['email']=session['Gkey']
+						attendeeList.append(attendee)
+						event["attendees"]=attendeeList
+						updated_event = service.events().update(calendarId=ProfGCal, eventId=inviteKey, body=event).execute()
 			else:#NON PINGABLE SUBJECT
 																					#EACH ELEMENT OF THE USER'S OFFICIAL SUBJECT LIST
 				scheduleParameters = { 'listachiavimaterie': subject.code, 'datarif': str(date(2015,5,29))}
@@ -778,6 +787,7 @@ def cal_step2():
 					pass
 			
 	del session['search_res']
+	del session['Gkey']
 	return redirect(url_for('calendar'))
 
 
@@ -930,7 +940,8 @@ def prof_cal_step2():
 						event.subject=item['titolo_materia']
 						event.classroom=item['aula']#Note instead of Aula 4D says 4D
 							
-						G_cal_request= {"end":{"dateTime": event.end,"timeZone":"Europe/Rome"}, "start":{"dateTime": event.start,"timeZone":"Europe/Rome"}, "recurrence":["RRULE:FREQ=WEEKLY;UNTIL=20150631T170000Z"], "summary": event.subject, "description": event.comment+' '+event.professor, "location": event.classroom, "colorId":"3"}
+						G_cal_request= {"end":{"dateTime": event.end,"timeZone":"Europe/Rome"}, "start":{"dateTime": event.start,"timeZone":"Europe/Rome"}, "recurrence":["RRULE:FREQ=WEEKLY;UNTIL=20150631T170000Z"], "summary": event.subject, "description": event.comment+' '+event.professor, "location": event.classroom, "colorId":"3","anyoneCanAddSelf": "true", "attendees":[]}
+
 						created_event=service.events().insert(calendarId=session['Gkey'], body=G_cal_request).execute()
 						listEventKeys.append(created_event['id'])
 						subject.uploaded=True
@@ -939,6 +950,7 @@ def prof_cal_step2():
 				pass
 			
 	del session['search_res']
+	del session['Gkey']
 	return redirect(url_for('prof_calendar'))
 
 
