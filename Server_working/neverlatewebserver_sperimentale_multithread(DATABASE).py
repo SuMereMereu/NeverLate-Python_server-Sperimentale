@@ -711,10 +711,8 @@ def cal_step1():
 @app.route('/calendar_step2', methods=['POST', 'GET'])		#NEW SUBJECT ADDITION
 def cal_step2():
 	global All_user
-	temp=request.form.get('subjects')			
-	temp="Elaborazione di immagine e video, AA - ZZ, BIANCHI TIZIANO, quadrimestre # 2"																	#TO GOOGLE PAGE ASKING FOR PERMISSION	
-	print "%s" %(temp)
-	
+	temp=request.form.get('subjects')																			#TO GOOGLE PAGE ASKING FOR PERMISSION
+	print "%s"%temp
 	if 'credentials' not in session:
 		session['oauthcaller']='cal_step2'																				#CHECK FOR THE USER AUTHORIZATION
 		return redirect(url_for('oauth2callback'))								#IF NOT PRESENT USER IS REDIRECTED
@@ -733,7 +731,6 @@ def cal_step2():
 	
 	for subject in session['search_res']:
 		control=subject['subj']+", "+subject['alpha']+", "+subject['prof']+", quadrimestre # "+subject['code'][9]
-		print "%s" %(control)
 		if control == temp and exit:										#IF THERE IS A MATCH BETWEEN THE SELECTED ITEM AND ANY ELEMENT IN THE TEMPORARLY SUBJECT LIST
 			dict_to_obj=PolitoRequest(subject['subj'], subject['alpha'], subject['prof'], subject['code'])
 			dict_to_obj.uploaded = False		  
@@ -778,7 +775,7 @@ def cal_step2():
 							event.professor=item['nominativo_docente']
 							event.comment=item['desc_evento']
 							event.subject=item['titolo_materia']
-							event.classroom=item['aula']#Note instead of Aula 4D says 4D
+							#event.classroom=item['aula']#Note instead of Aula 4D says 4D
 							
 							G_cal_request= {"end":{"dateTime": event.end,"timeZone":"Europe/Rome"}, "start":{"dateTime": event.start,"timeZone":"Europe/Rome"}, "recurrence":["RRULE:FREQ=WEEKLY;UNTIL=20150631T170000Z"], "summary": event.subject, "description": event.comment+' '+event.professor, "location": event.classroom, "colorId":"3"}
 							created_event=service.events().insert(calendarId=session['Gkey'], body=G_cal_request).execute()
@@ -938,7 +935,7 @@ def prof_cal_step2():
 						event.professor=item['nominativo_docente']
 						event.comment=item['desc_evento']
 						event.subject=item['titolo_materia']
-						event.classroom=item['aula']#Note instead of Aula 4D says 4D
+						#event.classroom=item['aula']#Note instead of Aula 4D says 4D
 							
 						G_cal_request= {"end":{"dateTime": event.end,"timeZone":"Europe/Rome"}, "start":{"dateTime": event.start,"timeZone":"Europe/Rome"}, "recurrence":["RRULE:FREQ=WEEKLY;UNTIL=20150631T170000Z"], "summary": event.subject, "description": event.comment+' '+event.professor, "location": event.classroom, "colorId":"3","anyoneCanAddSelf": "true", "attendees":[]}
 
