@@ -881,6 +881,8 @@ def prof_cal_step2():
 	global All_user
 	if 'temp' not in session:
 		session['temp']=request.form.get('subjects')
+		print "******************************************************* HERE TEMP *******************************************************"
+		print session['temp']
 																							#TO GOOGLE PAGE ASKING FOR PERMISSION	
 	
 	if 'credentials' not in session:
