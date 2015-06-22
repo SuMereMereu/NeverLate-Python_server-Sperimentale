@@ -698,7 +698,8 @@ def cal_step1():
 def cal_step2():
 	global All_user
 	temp=request.form.get('subjects')																			#TO GOOGLE PAGE ASKING FOR PERMISSION
-	print "%s"%temp
+	print "HERE ***********************************************************************************"
+	print temp
 	if 'credentials' not in session:
 		session['oauthcaller']='cal_step2'																				#CHECK FOR THE USER AUTHORIZATION
 		return redirect(url_for('oauth2callback'))								#IF NOT PRESENT USER IS REDIRECTED
