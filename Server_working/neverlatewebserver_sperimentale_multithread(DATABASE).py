@@ -698,8 +698,6 @@ def cal_step1():
 def cal_step2():
 	global All_user
 	temp=request.form.get('subjects')																			#TO GOOGLE PAGE ASKING FOR PERMISSION
-	print "HERE ***********************************************************************************"
-	print temp
 	if 'credentials' not in session:
 		session['oauthcaller']='cal_step2'																				#CHECK FOR THE USER AUTHORIZATION
 		return redirect(url_for('oauth2callback'))								#IF NOT PRESENT USER IS REDIRECTED
@@ -750,7 +748,9 @@ def cal_step2():
 				scheduleParameters = { 'listachiavimaterie': subject.code, 'datarif': str(date(2015,5,29))}
 				APIrequest = requests.post(urlScheduleTime, json=scheduleParameters)
 				schedule = APIrequest.json()
-				APIrequest.close()	
+				APIrequest.close()
+				print 'HERE***************************************************************************************'
+				print schedule['d'][0]['titolo_materia']					
 				if schedule['d']:
 					OneWeekSpan= timedelta(7,0,0)+DateFormat(schedule['d'][0]['start'])
 					for item in schedule['d']:
