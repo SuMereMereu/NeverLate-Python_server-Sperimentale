@@ -13,16 +13,19 @@ import httplib2
 import json
 import MySQLdb
 from multiprocessing import Process
+
+
+
 #GLOBAL VARIABLES
 
 app = Flask(__name__)
 app.secret_key=urandom(24)
 urlScheduleTime = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_orario"
 urlAPIpolito = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_elenco_materie"
-All_prof = {}
-All_user = {} 			#REMOVE WHEN DABASE IS ADDED
+All_user = {} 			
 nmax=2					#MAX ARCS TO UPLOAD CHANGE IT
 diz={} 					#QUEUE FOR UPDATING TIMETRAVELS
+
 
 
 #CLASSES
@@ -60,7 +63,6 @@ class User:
 		lista.append(self.settings.sound_status)
 		lista.append(self.settings.default_settings)
 		lista.append(self.settings.delay)
-		print lista
 		return lista
 		
 class PolitoRequest:
@@ -101,19 +103,7 @@ class PolitoCalendar:
 		self.professor = professor
 		self.classroom = classroom
 		
-class Professor:#OBSOLETE
-	def __init__(self, username, password, mail):
-		self.G_key = ""
-		self.username = username
-		self.password = password
-		self.mail = mail 
-		self.subjects = []#Subjects if for memorizing what subjects are already in memory
-		self.inviteKeys={} 
-#ASSOCIATION DICTIONARY: GIVES THE ASSOCIATION BETWEEN A PROF NAME OF THE POLITO CALENDAR
-#API AND ITS USERNAME
 
-Association={}	#OBSOLETE
-		
 		
 #GLOBAL FUNCTIONS
 		
@@ -128,7 +118,6 @@ def format_schedule(item_text):
     textformatted=textformatted.replace('</p>',"*")
     textformatted=textformatted.replace('<p style="margin:0">',"*")
     textformatted=textformatted.replace('**',"*")
-    '''modifica  textformatted=textformatted.split('*')'''
     textformatted=textformatted.split('*')
     
     if len(textformatted) == 5:
@@ -342,7 +331,9 @@ def getPass(username):
 	
 	return newline[0]
 
-#Graph
+
+
+#GRAPH
 
 def updateDatabase(lista,Place1,Place2):
 	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
@@ -494,7 +485,6 @@ def prof_settings():
 	else:
 		return redirect(url_for('prof_login'))
 
-
 @app.route('/user/calendar', methods=['POST', 'GET'])
 def calendar():
 	if 'user' in session:
@@ -571,8 +561,7 @@ def newuser():
 																						#OF CALENDAR KEY
 		created_calendar = service.calendars().insert(body=calendar).execute()
 		temp.G_key=created_calendar['id']
-		
-		'''All_user[username]=temp'''				
+					
 		insertUser(temp.User_Output_List())			#INSERTION IN DATABASE 'USERS'
 		if prof_checkbox == 'on':					#PROF AND USER ARE IN THE SAME DATABASE BUT ACCES DIFFERENT PAGES
 			return redirect(url_for('prof_login'))
@@ -614,7 +603,7 @@ def logout():
 
 
 #OPERATIVE URLS STUDENTS
-#WORK!
+
 @app.route('/loggining', methods=['POST', 'GET'])	#CREATION A SESSION FROM AN EXISTING USER
 def loggining():
 	global All_user				#REMOVE WHEN DABASE IS ADDED
@@ -805,7 +794,6 @@ def cal_step2():
 
 @app.route('/prof_loggining',methods=['POST', 'GET'])
 def prof_loggining():
-	global All_prof				#REMOVE WHEN DABASE IS ADDED
 	username=request.form.get('username')
 	password=request.form.get('password')
 	
@@ -828,7 +816,6 @@ def prof_loggining():
 
 @app.route('/prof_settings_definition', methods=['POST', 'GET']) #PERSONAL SETTINGS CUSTOMIZATION
 def prof_settings_def():
-	global All_user
 	if 'prof' in session:
 		lista=[]
 		lista.append(session['prof'])
@@ -947,7 +934,6 @@ def prof_cal_step2():
 						event.professor=item['nominativo_docente']
 						event.comment=item['desc_evento']
 						event.subject=item['titolo_materia']
-						#event.classroom=item['aula']#Note instead of Aula 4D says 4D
 							
 						G_cal_request= {"end":{"dateTime": event.end,"timeZone":"Europe/Rome"}, "start":{"dateTime": event.start,"timeZone":"Europe/Rome"}, "recurrence":["RRULE:FREQ=WEEKLY;UNTIL=20150631T170000Z"], "summary": event.subject, "description": event.comment+' '+event.professor, "location": event.classroom, "colorId":"3","anyoneCanAddSelf": "true", "attendees":[]}
 
@@ -963,29 +949,27 @@ def prof_cal_step2():
 	return redirect(url_for('prof_calendar'))
 
 
-#REST URL
 
-@app.route('/get_pref/<username>', methods=['POST', 'GET'])
-def get_pref(username):
-	return jsonify(All_user[username].settings.settings_dict())
-
-
-
-#GRAPH ROUTES
+#REST URLS
 
 @app.route("/updatedb/<key>") 
 def getquery(key):
 	query=key.replace("-", " ").encode("ascii","ignore")
 
 	query=query.split()
+	query2=[]
+	query2.append(query[0])
+	query2.append(query[1])
+	query2.sort()
+	
 	'''inserisco nel dizionario'''
-	diz[query[0]+query[1]].append(query[2])
-	if(len(diz[query[0]+query[1]])>nmax):
+	diz[query2[0]+query2[1]].append(query[2])
+	if(len(diz[query2[0]+query2[1]])>nmax):
 		'''lancio processo di update'''
-		pu=Process(target=updateDatabase,args=(diz[query[0]+query[1]],query[0],query[1],))
+		pu=Process(target=updateDatabase,args=(diz[query2[0]+query2[1]],query2[0],query2[1],))
 		pu.start()
 		'''svuoto la coda'''
-		del diz[query[0]+query[1]][:]
+		del diz[query2[0]+query2[1]][:]
 		
 	return 'OK',200
 
