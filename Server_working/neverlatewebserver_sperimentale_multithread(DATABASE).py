@@ -699,8 +699,7 @@ def cal_step1():
 def cal_step2():
 	global All_user
 	session['temp']=request.form.get('subjects')
-	print "******************************************************* HERE TEMP *******************************************************"
-	print temp																			#TO GOOGLE PAGE ASKING FOR PERMISSION
+	#TO GOOGLE PAGE ASKING FOR PERMISSION
 	if 'credentials' not in session:
 		session['oauthcaller']='cal_step2'																				#CHECK FOR THE USER AUTHORIZATION
 		return redirect(url_for('oauth2callback'))								#IF NOT PRESENT USER IS REDIRECTED
@@ -717,7 +716,9 @@ def cal_step2():
 	
 	exit = True
 	
+	print "******************************************************* HERE TEMP *******************************************************"
 	temp = session['temp']
+	print temp
 	del session['temp']
 	for subject in session['search_res']:
 		control=subject['subj']+", "+subject['alpha']+", "+subject['prof']+", quadrimestre # "+subject['code'][9]
