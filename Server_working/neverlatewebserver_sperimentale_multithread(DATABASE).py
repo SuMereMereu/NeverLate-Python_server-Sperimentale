@@ -698,7 +698,7 @@ def cal_step1():
 @app.route('/calendar_step2', methods=['POST', 'GET'])		#NEW SUBJECT ADDITION
 def cal_step2():
 	global All_user
-	temp=request.form.get('subjects')
+	session['temp']=request.form.get('subjects')
 	print "******************************************************* HERE TEMP *******************************************************"
 	print temp																			#TO GOOGLE PAGE ASKING FOR PERMISSION
 	if 'credentials' not in session:
@@ -717,6 +717,8 @@ def cal_step2():
 	
 	exit = True
 	
+	temp = session['temp']
+	del session['temp']
 	for subject in session['search_res']:
 		control=subject['subj']+", "+subject['alpha']+", "+subject['prof']+", quadrimestre # "+subject['code'][9]
 		if control == temp and exit:										#IF THERE IS A MATCH BETWEEN THE SELECTED ITEM AND ANY ELEMENT IN THE TEMPORARLY SUBJECT LIST
