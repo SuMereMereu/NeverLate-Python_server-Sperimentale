@@ -724,6 +724,7 @@ def cal_step2():
 	
 	for subject in All_user[session['user']]:														#SYNCRONIZATION WITH GOOGLE CALENDAR IS CHECKED FOR 
 		if subject.uploaded == False:
+			print "HERE 1.0 **********************************************************"
 			if getIfUserIsPresent(subject.prof):
 				ProfGCal=getGCalKeyProfessor(subject.prof)
 				inviteKeys=getInviteKey(subject.prof, subject.code)
