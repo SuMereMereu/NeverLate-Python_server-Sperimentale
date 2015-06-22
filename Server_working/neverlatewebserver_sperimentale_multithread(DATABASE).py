@@ -23,7 +23,7 @@ app.secret_key=urandom(24)
 urlScheduleTime = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_orario"
 urlAPIpolito = "http://www.swas.polito.it/dotnet/orari_lezione_pub/mobile/ws_orari_mobile.asmx/get_elenco_materie"
 All_user = {} 			
-nmax=2					#MAX ARCS TO UPLOAD CHANGE IT
+nmax=3					#MAX ARCS TO UPLOAD CHANGE IT
 diz={} 					#QUEUE FOR UPDATING TIMETRAVELS
 
 
