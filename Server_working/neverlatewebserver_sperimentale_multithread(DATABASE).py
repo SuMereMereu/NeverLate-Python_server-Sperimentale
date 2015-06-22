@@ -186,6 +186,17 @@ def insertSettingsUser(lista):
 	conn.commit()
 	conn.close()
 	
+def insertNewGcalUser(newKey,username):
+	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
+	cursor=conn.cursor()
+	
+	
+	query="UPDATE USERS SET GoogleCalKey='%s'\
+		WHERE UserName='%s'"%(newKey,username)
+		
+	cursor.execute(query)
+	conn.commit()
+	conn.close()
 	
 def getUserSettings(username):
 	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
@@ -631,7 +642,8 @@ def Gkeymod():
 	global All_user
 	if not 'user' in session:
 		return redirect(url_for('login')+"?valid=Exprd")
-	All_user[session['user']].G_key=request.form.get('G_key')
+	NewKey=request.form.get('G_key')
+	insertNewGcalUser(NewKey,session['user'])
 	
 	
 	
