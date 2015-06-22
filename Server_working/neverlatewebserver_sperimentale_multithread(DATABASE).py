@@ -914,13 +914,13 @@ def prof_cal_step2():
 				for item in schedule['d']:
 					if DateFormat(item['start']) < OneWeekSpan:
 						event=PolitoCalendar()
-						event=format_schedule(item['text'])
+						
 						event.start=item['start']
 						event.end=item['end']
 						event.professor=item['nominativo_docente']
 						event.comment=item['desc_evento']
 						event.subject=item['titolo_materia']
-							
+						event.classroom='Aula'+item['aula']						
 						G_cal_request= {"end":{"dateTime": event.end,"timeZone":"Europe/Rome"}, "start":{"dateTime": event.start,"timeZone":"Europe/Rome"}, "recurrence":["RRULE:FREQ=WEEKLY;UNTIL=20150631T170000Z"], "summary": event.subject, "description": event.comment+' '+event.professor, "location": event.classroom, "colorId":"3","anyoneCanAddSelf": "true", "attendees":[]}
 
 						created_event=service.events().insert(calendarId=session['Gkey'], body=G_cal_request).execute()
