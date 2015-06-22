@@ -698,7 +698,9 @@ def cal_step1():
 @app.route('/calendar_step2', methods=['POST', 'GET'])		#NEW SUBJECT ADDITION
 def cal_step2():
 	global All_user
-	temp=request.form.get('subjects')																			#TO GOOGLE PAGE ASKING FOR PERMISSION
+	temp=request.form.get('subjects')
+	print "HERE TEMP *************************************************************************"
+	print temp																			#TO GOOGLE PAGE ASKING FOR PERMISSION
 	if 'credentials' not in session:
 		session['oauthcaller']='cal_step2'																				#CHECK FOR THE USER AUTHORIZATION
 		return redirect(url_for('oauth2callback'))								#IF NOT PRESENT USER IS REDIRECTED
@@ -717,8 +719,6 @@ def cal_step2():
 	
 	for subject in session['search_res']:
 		control=subject['subj']+", "+subject['alpha']+", "+subject['prof']+", quadrimestre # "+subject['code'][9]
-		print "HERE strings ***********************************************************************"
-		print temp+", "+control
 		if control == temp and exit:										#IF THERE IS A MATCH BETWEEN THE SELECTED ITEM AND ANY ELEMENT IN THE TEMPORARLY SUBJECT LIST
 			print "HERE 0.1 ************************************************************"
 			dict_to_obj=PolitoRequest(subject['subj'], subject['alpha'], subject['prof'], subject['code'])
