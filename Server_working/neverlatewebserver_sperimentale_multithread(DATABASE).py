@@ -112,21 +112,6 @@ def DateFormat(datarfc):
     data=date(int(datavect[0]),int(datavect[1]),int(datavect[2]))
     return data
 
-def format_schedule(item_text):
-    
-    textformatted=item_text.replace('<p style="margin:0"></p>',"")
-    textformatted=textformatted.replace('</p>',"*")
-    textformatted=textformatted.replace('<p style="margin:0">',"*")
-    textformatted=textformatted.replace('**',"*")
-    textformatted=textformatted.split('*')
-    
-    if len(textformatted) == 5:
-        result = PolitoCalendar(textformatted[0],textformatted[1],textformatted[2],textformatted[3])
-        return result
-    else:
-        result = PolitoCalendar(textformatted[0],"",textformatted[1],textformatted[2])
-        return result
-
 
 
 #DATABASE FUNCTIONS
@@ -214,6 +199,8 @@ def getUser(username):
 	else:
 		return False	
 
+
+
 #DATABASE FOR PING
 def insertInProfUser(FullName,UserName,GCKey):
 	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
@@ -281,8 +268,6 @@ def getInviteKey(FullName,ApiSubjectCode):
 		
 	conn.close()
 	return invitelist	
-
-
 
 def getUsersAttendACourse(courseCode):
 	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
@@ -770,12 +755,13 @@ def cal_step2():
 					for item in schedule['d']:
 						if DateFormat(item['start']) < OneWeekSpan:
 							event=PolitoCalendar()
-							event=format_schedule(item['text'])
+							#event=format_schedule(item['text'])
 							event.start=item['start']
 							event.end=item['end']
 							event.professor=item['nominativo_docente']
 							event.comment=item['desc_evento']
 							event.subject=item['titolo_materia']
+							event.classroom='Aula'+item['aula']
 							#event.classroom=item['aula']#Note instead of Aula 4D says 4D
 							
 							G_cal_request= {"end":{"dateTime": event.end,"timeZone":"Europe/Rome"}, "start":{"dateTime": event.start,"timeZone":"Europe/Rome"}, "recurrence":["RRULE:FREQ=WEEKLY;UNTIL=20150631T170000Z"], "summary": event.subject, "description": event.comment+' '+event.professor, "location": event.classroom, "colorId":"3"}
@@ -1015,7 +1001,7 @@ if __name__ == '__main__':
 	user.username='Riccardo'
 	user.password='Gavoi91'
 	user.G_key='9p2jhrvdq00b2o8fp34lmurif4%40group.calendar.google.com'
-	All_user[user.username]=user
+	insertUser(user.User_Output_List())
 	
 	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")			#OPENING CONNECTION TO DATABASE
 	cursor=conn.cursor()
