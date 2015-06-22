@@ -602,8 +602,8 @@ def oauth2callback():
 def logout():
 	if 'user' in session:
 		del session['user']
+	if 'Gkey' in session:
 		del session['Gkey']
-		
 	if 'prof' in session:
 		del session['prof']
 		
