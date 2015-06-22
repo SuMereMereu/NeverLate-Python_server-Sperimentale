@@ -717,6 +717,8 @@ def cal_step2():
 	
 	for subject in session['search_res']:
 		control=subject['subj']+", "+subject['alpha']+", "+subject['prof']+", quadrimestre # "+subject['code'][9]
+		print "HERE strings ***********************************************************************"
+		print temp+", "+control
 		if control == temp and exit:										#IF THERE IS A MATCH BETWEEN THE SELECTED ITEM AND ANY ELEMENT IN THE TEMPORARLY SUBJECT LIST
 			print "HERE 0.1 ************************************************************"
 			dict_to_obj=PolitoRequest(subject['subj'], subject['alpha'], subject['prof'], subject['code'])
