@@ -879,7 +879,8 @@ def prof_cal_step1():
 @app.route('/prof_calendar_step2', methods=['POST', 'GET'])		#NEW SUBJECT ADDITION
 def prof_cal_step2():
 	global All_user
-	temp=request.form.get('prof_subjects')
+	if 'temp' not in session:
+		session['temp']=request.form.get('subjects')
 																							#TO GOOGLE PAGE ASKING FOR PERMISSION	
 	
 	if 'credentials' not in session:
@@ -897,6 +898,10 @@ def prof_cal_step2():
 		service = discovery.build('calendar', 'v3', http_auth)
 	
 	exit = True
+	
+	print "******************************************************* HERE TEMP *******************************************************"
+	temp = session['temp']
+	print temp
 	
 	for subject in session['search_res']:
 		control=subject['subj']+", "+subject['alpha']+", "+subject['prof']+", quadrimestre # "+subject['code'][9]
