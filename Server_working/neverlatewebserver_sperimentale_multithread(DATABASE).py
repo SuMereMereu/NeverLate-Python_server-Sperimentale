@@ -698,7 +698,9 @@ def cal_step1():
 @app.route('/calendar_step2', methods=['POST', 'GET'])		#NEW SUBJECT ADDITION
 def cal_step2():
 	global All_user
-	session['temp']=request.form.get('subjects')
+	if 'temp' not in session:
+		session['temp']=request.form.get('subjects')
+	
 	#TO GOOGLE PAGE ASKING FOR PERMISSION
 	if 'credentials' not in session:
 		session['oauthcaller']='cal_step2'																				#CHECK FOR THE USER AUTHORIZATION
