@@ -880,7 +880,7 @@ def prof_cal_step1():
 def prof_cal_step2():
 	global All_user
 	if 'temp' not in session:
-		session['temp']=request.form.get('subjects')
+		session['temp']=request.form.get('prof_subjects')
 		print "******************************************************* HERE TEMP 1 *******************************************************"
 		print session['temp']
 																							#TO GOOGLE PAGE ASKING FOR PERMISSION	
