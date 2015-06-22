@@ -997,12 +997,6 @@ def getUserSettingsJson(username):
 #MAIN
 
 if __name__ == '__main__':
-	user=User()																	#FOR TESTING PURPOSE
-	user.username='Riccardo'
-	user.password='Gavoi91'
-	user.G_key='9p2jhrvdq00b2o8fp34lmurif4%40group.calendar.google.com'
-	insertUser(user.User_Output_List())
-	
 	conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")			#OPENING CONNECTION TO DATABASE
 	cursor=conn.cursor()
 	
