@@ -699,7 +699,7 @@ def cal_step1():
 def cal_step2():
 	global All_user
 	temp=request.form.get('subjects')
-	print "HERE TEMP *************************************************************************"
+	print "******************************************************* HERE TEMP *******************************************************"
 	print temp																			#TO GOOGLE PAGE ASKING FOR PERMISSION
 	if 'credentials' not in session:
 		session['oauthcaller']='cal_step2'																				#CHECK FOR THE USER AUTHORIZATION
@@ -720,7 +720,6 @@ def cal_step2():
 	for subject in session['search_res']:
 		control=subject['subj']+", "+subject['alpha']+", "+subject['prof']+", quadrimestre # "+subject['code'][9]
 		if control == temp and exit:										#IF THERE IS A MATCH BETWEEN THE SELECTED ITEM AND ANY ELEMENT IN THE TEMPORARLY SUBJECT LIST
-			print "HERE 0.1 ************************************************************"
 			dict_to_obj=PolitoRequest(subject['subj'], subject['alpha'], subject['prof'], subject['code'])
 			dict_to_obj.uploaded = False		  
 			All_user[session['user']].append(dict_to_obj)			#TROVARE SOLUZIONE PER CARICARE OGGETTO, STORED IN DATABASE, THE SUBJECT IS ADDED IN THE USER'S OFFICIAL SUBJECT LIST
@@ -729,7 +728,6 @@ def cal_step2():
 	for subject in All_user[session['user']]:														#SYNCRONIZATION WITH GOOGLE CALENDAR IS CHECKED FOR
 		print  
 		if subject.uploaded == False:
-			print "HERE 1.0 **********************************************************"
 			if getIfUserIsPresent(subject.prof):
 				ProfGCal=getGCalKeyProfessor(subject.prof)
 				inviteKeys=getInviteKey(subject.prof, subject.code)
@@ -754,9 +752,7 @@ def cal_step2():
 				scheduleParameters = { 'listachiavimaterie': subject.code, 'datarif': str(date(2015,5,29))}
 				APIrequest = requests.post(urlScheduleTime, json=scheduleParameters)
 				schedule = APIrequest.json()
-				APIrequest.close()
-				print 'HERE***************************************************************************************'
-				print schedule['d'][0]['titolo_materia']					
+				APIrequest.close()					
 				if schedule['d']:
 					OneWeekSpan= timedelta(7,0,0)+DateFormat(schedule['d'][0]['start'])
 					for item in schedule['d']:
