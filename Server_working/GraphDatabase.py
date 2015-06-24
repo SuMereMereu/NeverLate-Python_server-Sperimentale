@@ -5,15 +5,15 @@ Created on 23/giu/2015
 '''
 
 import MySQLdb
-
-
+import json
+from time import sleep
 
 #GRAPH
 
 def updateDatabase(lista,Place1,Place2):
     conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
     cursor=conn.cursor()
-    '''acquisisco vecchio valore'''
+    #ACQUIRE OLD VALUE
     query="SELECT Time FROM GRAPH WHERE Place1='%s' AND Place2='%s'"%(Place1,Place2)
     cursor.execute(query)
     old=cursor.fetchall()
@@ -21,7 +21,7 @@ def updateDatabase(lista,Place1,Place2):
         newline=" ".join(str(l) for l in line)
         newline=newline.split()
     old=newline[0]
-    '''prendo la mediana?'''
+    #TAKE THE MEDIAN
     lista.sort()
     lung=len(lista)
     indice=lung/2

@@ -240,8 +240,8 @@ def oauth2callback():
         	auth_code = request.args.get('code')
          	credentials = flow.step2_exchange(auth_code)
           	session['credentials'] = credentials.to_json()
-          	'''dico a dove fare le redirect'''
-          	redirectString=session['oauthcaller']
+          	
+          	redirectString=session['oauthcaller'] #TELLS TO OAUTH WHERE TO REDIRECT
           	del session['oauthcaller']
            	return redirect(url_for(redirectString))
            	
@@ -350,7 +350,7 @@ def cal_step1():
 	if temp:						#CHECK OF LOCAL DATA (IF PRESENT OR NOT)
 		for subject in temp:
 			flag=True
-			''' qua midava errore quando provavo a inserire una seconda materia ho fatto il ciclo col break'''
+			
 			if  session['user'] not in All_user:
 				All_user[session['user']]=[]
 			for personal_subj in All_user[session['user']]:			#ONLY THE SUBJECTS NOT IN THE USER'S PERSONAL DATA ARE STORED TEMPORARLY 
@@ -531,7 +531,7 @@ def prof_cal_step1():
 	if temp:						#CHECK OF LOCAL DATA (IF PRESENT OR NOT)
 		for subject in temp:
 			flag=True
-			''' qua midava errore quando provavo a inserire una seconda materia ho fatto il ciclo col break'''
+			
 			if  session['prof'] not in All_user:
 				All_user[session['prof']]=[]
 			for personal_subj in All_user[session['prof']]:			#ONLY THE SUBJECTS NOT IN THE USER'S PERSONAL DATA ARE STORED TEMPORARLY 
