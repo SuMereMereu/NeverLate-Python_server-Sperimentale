@@ -1,8 +1,10 @@
 '''
 Created on 23/giu/2015
 
-@author: nicola
+@author: nicola, Riccardo
 '''
+
+
 
 #CLASSES
 

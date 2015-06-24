@@ -5,7 +5,10 @@ Created on 23/giu/2015
 '''
 import MySQLdb
 
+
+
 #DATABASE FOR PING
+
 def insertInProfUser(FullName,UserName,GCKey):
     conn=MySQLdb.connect(user='root',passwd="forzatoro",db="NeverLate")
     cursor=conn.cursor()

@@ -5,6 +5,9 @@ Created on 23/giu/2015
 '''
 
 import MySQLdb
+
+
+
 #GRAPH
 
 def updateDatabase(lista,Place1,Place2):

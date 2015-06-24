@@ -14,11 +14,15 @@ import json
 import MySQLdb
 from multiprocessing import Process
 
+
+
 #OUR MODULES
 from UserDatabase import insertUser, insertSettingsUser, insertNewGcalUser, getUserSettings, getUser, getPass
 from UserClasses import Settings, User, PolitoRequest, PolitoCalendar
 from PingDatabase import insertInProfUser, getIfUserIsPresent, getGCalKeyProfessor, insertInviteKey, getInviteKey
 from GraphDatabase import updateDatabase, QUERY_RESULT_JSON
+
+
 
 #GLOBAL VARIABLES
 
@@ -31,6 +35,7 @@ nmax=3					#MAX ARCS TO UPLOAD CHANGE IT
 diz={} 					#QUEUE FOR UPDATING TIMETRAVELS
 
 
+
 #GLOBAL FUNCTIONS
 		
 def DateFormat(datarfc):
@@ -38,8 +43,9 @@ def DateFormat(datarfc):
     data=date(int(datavect[0]),int(datavect[1]),int(datavect[2]))
     return data
 
-#HTML PAGES RENDERING
 
+
+#HTML PAGES RENDERING
 
 @app.route('/')
 def index():
