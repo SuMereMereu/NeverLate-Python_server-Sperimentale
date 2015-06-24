@@ -253,9 +253,10 @@ def logout():
 		del session['Gkey']
 	if 'prof' in session:
 		del session['prof']
-		
 	if 'credentials' in session:
 		del session['credentials']
+	if 'temp' in session:
+		del session['temp']
 	return redirect(url_for('index'))
 
 
@@ -577,7 +578,7 @@ def prof_cal_step2():
 	print "******************************************************* HERE TEMP 2 *******************************************************"
 	temp = session['temp']
 	print temp
-	
+	del session['temp']
 	for subject in session['search_res']:
 		control=subject['subj']+", "+subject['alpha']+", "+subject['prof']+", quadrimestre # "+subject['code'][9]
 		if control == temp and exit:
